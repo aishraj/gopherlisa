@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/aishraj/gopherlisa/generator"
 	"log"
 )
@@ -21,5 +20,4 @@ func main() {
 		*instagramUsername, *inputFileName, *searchTerm)
 
 	generator.Generate(*instagramUsername, *searchTerm, *inputFileName)
-
 }
