@@ -2,12 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/aishraj/gopherlisa/generator"
 	"log"
-)
 
-const InstagramClientId = "37b5984662894641bd7bbe4a597cd4b2"
-const InstagramSecret = "9bd87bfb4408400d84c658d3ab5c728d"
+	"github.com/aishraj/gopherlisa/generator"
+	"github.com/aishraj/gopherlisa/server"
+)
 
 func main() {
 	instagramUsername := flag.String("username", "", "Instagram username for the user")
@@ -16,8 +15,8 @@ func main() {
 
 	flag.Parse()
 
-	log.Printf("Starting out the mosaic generator with Instagram Username: %d, Input file: %d , Searc term %d ",
+	log.Printf("Starting out the mosaic generator with Instagram Username: %s, Input file: %s , Search term %s ",
 		*instagramUsername, *inputFileName, *searchTerm)
-
+	go server.StartResponseServer()
 	generator.Generate(*instagramUsername, *searchTerm, *inputFileName)
 }

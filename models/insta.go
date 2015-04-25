@@ -1,9 +1,21 @@
 package models
 
-//A wrapper around the instagram response
+//ImageMetaData is a wrapper around the instagram response
 type ImageMetaData struct {
-	ThumbnailUrl string
+	ThumbnailURL string
 	Height       int
 	Width        int
-	MediaId      string
+	MediaID      string
+}
+
+type AuthenticationUser struct {
+	ID             string `json:"id"`
+	UserName       string `json:"user_name"`
+	FullName       string `json:"full_name"`
+	ProfilePicture string `json:"profile_picture"`
+}
+
+type AuthenticationResponse struct {
+	AccessToken string             `json:"access_token"`
+	User        AuthenticationUser `json:"user"`
 }
