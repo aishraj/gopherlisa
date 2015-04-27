@@ -27,7 +27,7 @@ func instaFetch(userName string, tag string, dataType string) (metadata []models
 	}
 	//next we make a series of calls to the api until
 	// 1. we get the number of images we want
-	// 2. the server says we've reached the end of trail (TODO: figure this one out)
+	// 2. the server says we've reached the end of trail like no more images for this search item (TODO: figure this one out)
 	// 3. We bump into an error (any server error, or invalid metadata error)
 	// Note here: rather than doing it all in a single thread,
 	// sending each request from a go routine until any one reaches
@@ -44,6 +44,8 @@ func getSavedToken(userName string) (token string, err error) {
 func generateAccessToken(username string) (accessToken string, err error) {
 	//This is where we communicate to instagram.
 	//Steps based on https://instagram.com/developer/authentication/
-
+	//TODO: This should ideally call the authentication module (the planned one and all flow should take place there)
+	//The challenge is how to define different parts of the same web applicaiton (entry points) in different files ?
+	//Can be done, but is it the right way.
 	return "", nil
 }
