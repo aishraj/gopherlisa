@@ -9,6 +9,16 @@ import (
 	"github.com/aishraj/gopherlisa/auth"
 )
 
+func HandleBase(w http.ResponseWriter, r *http.Request) {
+	log.Println("Inside the base handler.")
+	BaseHandler(w, r)
+}
+
+func AuthroizeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Inside the authorization handler.")
+	AuthHandler(w, r)
+}
+
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
 
 	code := r.URL.Query().Get("code")
@@ -19,7 +29,7 @@ func BaseHandler(w http.ResponseWriter, r *http.Request) {
 	} else if instaError == "access_denied" && r.URL.Query().Get("error_reason") == "user_denied" {
 		fmt.Fprintf(w, "Oops, something went wrong.")
 	} else {
-		t, err := template.ParseFiles("templates/login.html")
+		t, err := template.ParseGlob("templates/*.html")
 		if err != nil {
 			log.Fatal("Unable to parse the template")
 		}
