@@ -10,8 +10,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/aishraj/gopherlisa/constants"
-	"github.com/aishraj/gopherlisa/models"
+	"github.com/aishraj/gopherlisa/lib/constants"
+	"github.com/aishraj/gopherlisa/lib/models"
 )
 
 func AuthenticateUser(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/aishraj/gopherlisa/models"
+	"github.com/aishraj/gopherlisa/lib/models"
 )
 
 const serverURL = ""
