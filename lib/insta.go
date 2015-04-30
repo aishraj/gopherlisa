@@ -1,4 +1,4 @@
-package models
+package lib
 
 //ImageMetaData is a wrapper around the instagram response
 type ImageMetaData struct {
