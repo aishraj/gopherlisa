@@ -7,11 +7,16 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 )
 
 type AppContext struct {
 	Log          *log.Logger
 	SessionStore *sessions.Manager
+}
+
+type tinyUser struct {
+	DisplayName string
 }
 
 type Handler struct {
@@ -42,6 +47,14 @@ func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {
 	context.Log.Println("Inside the base handler.")
+	session := context.SessionStore.SessionStart(w, r)
+	createtime := session.Get("createtime")
+	if createtime == nil {
+		session.Set("createtime", time.Now().Unix())
+	} else if (createtime.(int64) + 360) < (time.Now().Unix()) {
+		context.SessionStore.SessionDestroy(w, r)
+		session = context.SessionStore.SessionStart(w, r)
+	}
 	switch r.Method {
 	case "GET":
 		code := r.URL.Query().Get("code")
@@ -53,14 +66,28 @@ func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (re
 			retVal = http.StatusInternalServerError
 			err = errors.New("Seems you didn't allow that to happen")
 		} else {
+			displayUser := session.Get("user")
+			if displayUser == nil {
+				session.Set("user", "Guest")
+			} else {
+				session.Set("user", displayUser)
+			}
 			t, err := template.ParseGlob("templates/*.html")
 			if err != nil {
 				context.Log.Println("Unable to parse the template. Error is: ", err)
 				return http.StatusInternalServerError, err
 			}
-			t.Execute(w, nil)
-			retVal = http.StatusFound
-			err = nil
+			w.Header().Set("Content-Type", "text/html")
+
+			if str, ok := displayUser.(string); ok {
+				userInfo := tinyUser{str}
+				t.Execute(w, userInfo)
+				retVal = http.StatusFound
+				err = nil
+			} else {
+				retVal = http.StatusInternalServerError
+				err = errors.New("Unable to set username in template")
+			}
 		}
 	default:
 		context.Log.Println("Seems the user didn't do a get request. Request type was: ", r.Method)
@@ -71,6 +98,13 @@ func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (re
 }
 
 func AuthroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
-	context.Log.Println("Inside the authorization handler.")
-	return AuthenticateUser(context, w, r)
+	session := context.SessionStore.SessionStart(w, r)
+	authToken := session.Get("access_token")
+	if authToken == nil {
+		context.Log.Println("Inside the authorization handler.")
+		return AuthenticateUser(context, w, r)
+	} else {
+		context.Log.Println("Already authenticated, and therefore returning from here.")
+		return http.StatusSeeOther, nil
+	}
 }

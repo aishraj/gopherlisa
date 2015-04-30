@@ -104,7 +104,11 @@ func PerformPostReqeust(applicationContext *AppContext, w http.ResponseWriter, r
 	}
 
 	applicationContext.Log.Printf("Yippie!! your authentication token is %v \n", authToken.AccessToken)
+	applicationContext.Log.Println("Got the data: ", authToken)
 
+	sess := applicationContext.SessionStore.SessionStart(w, r)
+	sess.Set("user", authToken.User.FullName)
+	sess.Set("access_token", authToken.AccessToken)
 	// TODO: set data in sesison storeage.
 	//key, err := datastore.Put(context, datastore.NewIncompleteKey(context, "authToken", nil), &authToken)
 	// applicationContext.log.Printf("Key is %v \n", key)
