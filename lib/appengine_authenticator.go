@@ -1,4 +1,4 @@
-// +build !appengine
+// +build appengine
 
 package lib
 
@@ -12,6 +12,9 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"appengine"
+	"appengine/urlfetch"
 
 	"github.com/aishraj/gopherlisa/lib/constants"
 )
@@ -46,6 +49,8 @@ func PerformPostReqeust(applicationContext *AppContext, w http.ResponseWriter, r
 
 	applicationContext.Log.Printf("Performing Post trigggered with the code value %v \n", code)
 
+	context := appengine.NewContext(req)
+
 	uri, err := url.ParseRequestURI(constants.OauthBaseURI)
 
 	if err != nil {
@@ -64,7 +69,7 @@ func PerformPostReqeust(applicationContext *AppContext, w http.ResponseWriter, r
 
 	applicationContext.Log.Print("posting to the url: ", urlStr)
 
-	client := &http.Client{}
+	client := urlfetch.Client(context)
 
 	r, _ := http.NewRequest("POST", urlStr, bytes.NewBufferString(data.Encode())) // <-- URL-encoded payload
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")

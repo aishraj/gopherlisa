@@ -71,7 +71,7 @@ func AuthroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Reques
 }
 
 func loadAndParseTemplate(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseGlob("../templates/*.html")
+	t, err := template.ParseGlob("templates/*.html")
 	if err != nil {
 		log.Fatal("Unable to parse the template")
 	}
