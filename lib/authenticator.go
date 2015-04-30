@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -25,7 +24,8 @@ func AuthenticateUser(context *AppContext, w http.ResponseWriter, r *http.Reques
 		u, err := url.Parse(constants.OauthBaseURI)
 		u.Path = "/oauth/authorize/"
 		if err != nil {
-			log.Fatal("Unable to parse the URI. Error is: ", err)
+			context.Log.Println("Unable to parse the URI. Error is: ", err)
+			return http.StatusBadRequest, err
 		}
 		query := u.Query()
 		query.Set("client_id", constants.InstagramClientID)
@@ -33,7 +33,7 @@ func AuthenticateUser(context *AppContext, w http.ResponseWriter, r *http.Reques
 		query.Set("response_type", "code")
 
 		u.RawQuery = query.Encode()
-		log.Println(u)
+		context.Log.Println("Query is: ", u)
 		http.Redirect(w, r, fmt.Sprintf("%v", u), http.StatusSeeOther) //TODO change this so that redirect happens in the calling method.
 		return http.StatusOK, nil                                      //TODO change this
 	default:
@@ -94,16 +94,16 @@ func PerformPostReqeust(applicationContext *AppContext, w http.ResponseWriter, r
 
 	err = json.Unmarshal(body, &authToken)
 	if err != nil {
-		log.Printf("%T\n%s\n%#v\n", err, err, err)
+		applicationContext.Log.Printf("%T\n%s\n%#v\n", err, err, err)
 		switch v := err.(type) {
 		case *json.SyntaxError:
-			log.Println(string(body[v.Offset-40 : v.Offset]))
+			applicationContext.Log.Println(string(body[v.Offset-40 : v.Offset]))
 		}
 		applicationContext.Log.Println("Eror while unmarshalling data.")
 		return http.StatusInternalServerError, errors.New("Error unmarshalling data")
 	}
 
-	log.Printf("Yippie!! your authentication token is %v \n", authToken.AccessToken)
+	applicationContext.Log.Printf("Yippie!! your authentication token is %v \n", authToken.AccessToken)
 
 	// TODO: set data in sesison storeage.
 	//key, err := datastore.Put(context, datastore.NewIncompleteKey(context, "authToken", nil), &authToken)

@@ -20,7 +20,6 @@ type Handler struct {
 }
 
 func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Updated to pass ah.appContext as a parameter to our handler type.
 	status, err := handler.HandlerFunc(handler.AppContext, w, r)
 	if err != nil {
 		log.Printf("HTTP %d: %q", status, err)
@@ -32,48 +31,46 @@ func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// err := ah.renderTemplate(w, "http_404.tmpl", nil)
 		case http.StatusInternalServerError:
 			http.Error(w, http.StatusText(status), status)
-		case http.StatusSeeOther:
-			http.Redirect(w, r, "/", http.StatusSeeOther)
 		default:
 			http.Error(w, http.StatusText(status), status)
 		}
 	}
+	if status == http.StatusSeeOther {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
 }
 
 func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {
-	log.Println("Inside the base handler.")
+	context.Log.Println("Inside the base handler.")
 	switch r.Method {
 	case "GET":
 		code := r.URL.Query().Get("code")
 		if instaError := r.URL.Query().Get("error"); len(code) != 0 {
-			log.Println("Send a post request to Instgaram now")
+			context.Log.Println("Send a post request to Instgaram now")
 			return PerformPostReqeust(context, w, r, code)
 		} else if instaError == "access_denied" && r.URL.Query().Get("error_reason") == "user_denied" {
 			fmt.Fprintf(w, "Oops, something went wrong.")
-			retVal = 422
+			retVal = http.StatusInternalServerError
 			err = errors.New("Seems you didn't allow that to happen")
 		} else {
-			loadAndParseTemplate(w, r)
-			retVal = 200
+			t, err := template.ParseGlob("templates/*.html")
+			if err != nil {
+				context.Log.Println("Unable to parse the template. Error is: ", err)
+				return http.StatusInternalServerError, err
+			}
+			t.Execute(w, nil)
+			retVal = http.StatusFound
 			err = nil
 		}
 	default:
 		context.Log.Println("Seems the user didn't do a get request. Request type was: ", r.Method)
-		retVal = 500
+		retVal = http.StatusInternalServerError
 		err = errors.New("Method not supported.")
 	}
 	return
 }
 
 func AuthroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
-	log.Println("Inside the authorization handler.")
+	context.Log.Println("Inside the authorization handler.")
 	return AuthenticateUser(context, w, r)
-}
-
-func loadAndParseTemplate(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseGlob("templates/*.html")
-	if err != nil {
-		log.Fatal("Unable to parse the template")
-	}
-	t.Execute(w, nil)
 }
