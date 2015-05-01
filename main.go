@@ -6,12 +6,10 @@ import (
 	"os"
 
 	"github.com/aishraj/gopherlisa/lib"
-	_ "github.com/aishraj/gopherlisa/lib/memory"
-	"github.com/aishraj/gopherlisa/lib/sessions"
 )
 
 func main() {
-	sessionStore, err := sessions.NewManager("memory", "gosessionid", 3600)
+	sessionStore, err := lib.NewSessionManager("gopherId", 3600)
 	if err != nil {
 		log.Fatal("Unable to start the session store manager.", err)
 	}

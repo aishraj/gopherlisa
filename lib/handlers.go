@@ -3,7 +3,6 @@ package lib
 import (
 	"errors"
 	"fmt"
-	"github.com/aishraj/gopherlisa/lib/sessions"
 	"html/template"
 	"log"
 	"net/http"
@@ -12,7 +11,7 @@ import (
 
 type AppContext struct {
 	Log          *log.Logger
-	SessionStore *sessions.Manager
+	SessionStore *SessionManager
 }
 
 type tinyUser struct {
@@ -48,15 +47,19 @@ func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {
 	context.Log.Println("Inside the base handler.")
 	session := context.SessionStore.SessionStart(w, r)
+	context.Log.Println("Got session object.")
 	createtime := session.Get("createtime")
+	context.Log.Println("The create time of the session is: ", createtime)
 	if createtime == nil {
 		session.Set("createtime", time.Now().Unix())
 	} else if (createtime.(int64) + 360) < (time.Now().Unix()) {
-		context.SessionStore.SessionDestroy(w, r)
+		context.SessionStore.SessionDestroy(session.SessionID())
 		session = context.SessionStore.SessionStart(w, r)
 	}
+	context.Log.Println("Now checking the method.")
 	switch r.Method {
 	case "GET":
+		context.Log.Println("It is a GET method.")
 		code := r.URL.Query().Get("code")
 		if instaError := r.URL.Query().Get("error"); len(code) != 0 {
 			context.Log.Println("Send a post request to Instgaram now")
@@ -66,12 +69,16 @@ func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (re
 			retVal = http.StatusInternalServerError
 			err = errors.New("Seems you didn't allow that to happen")
 		} else {
+			context.Log.Println("Now trying to get the value of a field from the session")
 			displayUser := session.Get("user")
 			if displayUser == nil {
+				context.Log.Println("The value was not set. Setting it to guest now")
 				session.Set("user", "Guest")
 			} else {
+				context.Log.Println("The value was set, displaying it now.")
 				session.Set("user", displayUser)
 			}
+			context.Log.Println("Now trying to render the template.")
 			t, err := template.ParseGlob("templates/*.html")
 			if err != nil {
 				context.Log.Println("Unable to parse the template. Error is: ", err)
@@ -79,12 +86,14 @@ func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (re
 			}
 			w.Header().Set("Content-Type", "text/html")
 
-			if str, ok := displayUser.(string); ok {
+			context.Log.Println("Display user is: ", session.Get("user"))
+			if str, ok := session.Get("user").(string); ok {
 				userInfo := tinyUser{str}
 				t.Execute(w, userInfo)
 				retVal = http.StatusFound
 				err = nil
 			} else {
+				context.Log.Printf("Could not cast the user display name to string")
 				retVal = http.StatusInternalServerError
 				err = errors.New("Unable to set username in template")
 			}
@@ -94,6 +103,7 @@ func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (re
 		retVal = http.StatusInternalServerError
 		err = errors.New("Method not supported.")
 	}
+	context.Log.Printf("Returning with values Status  %v and error %v ", retVal, err)
 	return
 }
 
