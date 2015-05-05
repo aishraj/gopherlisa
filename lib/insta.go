@@ -23,53 +23,54 @@ type AuthenticationResponse struct {
 }
 
 type APIResponse struct {
-	Pagination PaginationObject
-	Meta       MetaData
-	Data       []TagResponse
+	Pagination PaginationObject `json:"pagination"`
+	Meta       MetaData         `json:"meta"`
+	Data       []TagResponse    `json:"data"`
+	//TODO add error response also
 }
 
 type PaginationObject struct {
-	NextURL            string
-	NextMaxID          string
-	DeprecationWarning string
-	NextMaxTagID       string
-	NextMinID          string
-	MinTagID           string
+	NextURL            string `json:"next_url"`
+	NextMaxID          string `json:"next_max_id,omitempty"`
+	DeprecationWarning string `json:"deprecation_warning,omitempty"`
+	NextMaxTagID       string `json:"next_max_tag_id,omitempty"`
+	NextMinID          string `json:"next_min_id,omitempty"`
+	MinTagID           string `json:"min_tag_id,omitempty"`
 }
 
 type MetaData struct {
-	ErrorType    string
-	Code         int32
-	ErrorMessage string
+	ErrorType    string `json:"error_type,omitempty"`
+	Code         int32  `json:"code,omitempty"`
+	ErrorMessage string `json:"error_message,omitempty"`
 }
 
 type TagResponse struct {
-	Attribution  json.RawMessage
-	Videos       json.RawMessage
-	Tags         []string
-	MediaType    string
-	Location     json.RawMessage
-	Comments     json.RawMessage
-	Filter       json.RawMessage
-	CreatedTime  string
-	Link         string
-	Images       DigitialMediaInfo
-	Likes        json.RawMessage
-	UsersInPhoto json.RawMessage
-	Caption      json.RawMessage
-	UserLinked   json.RawMessage
-	ID           string
-	UserInfo     json.RawMessage
+	Attribution  json.RawMessage   `json:"attribution,omitempty"`
+	Videos       json.RawMessage   `json:"videos,omitempty"`
+	Tags         []string          `json:"tags,omitempty"`
+	MediaType    string            `json:"type,omitempty"`
+	Location     json.RawMessage   `json:"location,omitempty"`
+	Comments     json.RawMessage   `json:"comments,omitempty"`
+	Filter       json.RawMessage   `json:"filter,omitempty"`
+	CreatedTime  string            `json:"created_time,omitempty"`
+	Link         string            `json:"link,omitempty"`
+	Images       DigitialMediaInfo `json:"images,omitempty"`
+	Likes        json.RawMessage   `json:"likes,omitempty"`
+	UsersInPhoto json.RawMessage   `json:"users_in_photo,omitempty"`
+	Caption      json.RawMessage   `json:"caption,omitempty"`
+	UserLinked   json.RawMessage   `json:"user_has_liked,omitempty"`
+	ID           string            `json:"id"`
+	UserInfo     json.RawMessage   `json:"user,omitempty"`
 }
 
 type DigitialMediaInfo struct {
-	LowResolution      ImageDetails
-	Thumbnail          ImageDetails
-	StandardResolution ImageDetails
+	LowResolution      ImageDetails `json:"low_resolution,omitempty"`
+	Thumbnail          ImageDetails `json:"thumbnail,omitempty"`
+	StandardResolution ImageDetails `json:"standard_resolution,omitempty"`
 }
 
 type ImageDetails struct {
-	URL    string
-	Height int32
-	Width  int32
+	URL    string `json:"url"`
+	Height int32  `json:"height"`
+	Width  int32  `json:"width"`
 }

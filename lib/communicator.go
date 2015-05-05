@@ -33,8 +33,9 @@ func fetchImages(context *AppContext, serverURI, authToken string) ([]string, er
 	firstURL := serverURI
 	urlQueue = append(urlQueue, firstURL)
 
-	for len(urlQueue) > 0 || len(items) <= 50 {
-		fetchURL, urlQueue := urlQueue[len(urlQueue)-1], urlQueue[:len(urlQueue)-1]
+	for len(urlQueue) > 0 && len(items) <= 500 {
+		fetchURL, urlQueue := urlQueue[len(urlQueue)-1], urlQueue[0:len(urlQueue)-1]
+		context.Log.Println("Tyring to fetch from the URL: ", fetchURL)
 		responseMap, err := fetchServerResponse(context, fetchURL)
 		if err != nil {
 			errorMessage := "Oops, there was an error geting the server response"
@@ -43,7 +44,9 @@ func fetchImages(context *AppContext, serverURI, authToken string) ([]string, er
 		}
 		responseData := responseMap.Data
 		for _, responseMeta := range responseData {
+			context.Log.Println("Iterating over the response metadata.")
 			mediaType := responseMeta.MediaType
+			context.Log.Println("The mediatype we got is: ", mediaType)
 			if mediaType == "image" {
 				thumbNailURL := responseMeta.Images.Thumbnail.URL
 				context.Log.Println("*** Parsed the Response for Image URL:", thumbNailURL, "******")
@@ -51,18 +54,20 @@ func fetchImages(context *AppContext, serverURI, authToken string) ([]string, er
 			}
 		}
 		nextURL := responseMap.Pagination.NextURL
+		context.Log.Println("**Count of values till this cycle are**", len(items))
+		context.Log.Println("The next URL is:", nextURL)
 		urlQueue = append(urlQueue, nextURL)
 	}
 	return items, nil
 }
 
 func fetchServerResponse(context *AppContext, serverURI string) (APIResponse, error) {
-
+	//TODO: Add error handelling here.
 	var responseMap APIResponse
-
+	context.Log.Println("Trying to GET from the server on URI: ", serverURI)
 	response, err := http.Get(serverURI)
 	if err != nil {
-		context.Log.Printf("Unable to get the images from instagram.")
+		context.Log.Println("Unable to get the images from instagram. Error is: ", err)
 		return responseMap, err
 	}
 	if response.StatusCode != http.StatusOK {
@@ -79,6 +84,6 @@ func fetchServerResponse(context *AppContext, serverURI string) (APIResponse, er
 	}
 
 	json.Unmarshal(body, &responseMap)
-	context.Log.Println("The response body is: ", responseMap)
+	context.Log.Println("OK got a valid response ")
 	return responseMap, nil
 }

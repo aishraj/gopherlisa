@@ -7,6 +7,7 @@ import (
 )
 
 func TestCommunicator(t *testing.T) {
+	t.Skip("skipping test mode.")
 	t.Log("starting test")
 	sessionStore, err := NewSessionManager("gopherId", 3600)
 	if err != nil {
