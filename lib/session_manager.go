@@ -111,7 +111,3 @@ func (manager *SessionManager) getSessionID() string {
 	}
 	return base64.URLEncoding.EncodeToString(b)
 }
-
-func init() {
-
-}

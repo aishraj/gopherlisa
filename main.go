@@ -19,7 +19,9 @@ func main() {
 	context := &lib.AppContext{Info, sessionStore}
 	authHandler := lib.Handler{context, lib.AuthroizeHandler}
 	rootHandler := lib.Handler{context, lib.HandleBase}
+	uploadHandler := lib.Handler{context, lib.UploadHandler}
 	http.Handle("/authorize/", authHandler)
+	http.Handle("/upload/", uploadHandler)
 	http.Handle("/", rootHandler)
 	http.ListenAndServe(":8080", nil)
 }

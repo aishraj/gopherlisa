@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -79,7 +81,7 @@ func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (re
 				session.Set("user", displayUser)
 			}
 			context.Log.Println("Now trying to render the template.")
-			t, err := template.ParseGlob("templates/*.html")
+			t, err := template.ParseGlob("templates/login.html")
 			if err != nil {
 				context.Log.Println("Unable to parse the template. Error is: ", err)
 				return http.StatusInternalServerError, err
@@ -107,14 +109,96 @@ func HandleBase(context *AppContext, w http.ResponseWriter, r *http.Request) (re
 	return
 }
 
+func UploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
+	session := context.SessionStore.SessionStart(w, r)
+	authToken := session.Get("access_token")
+	switch r.Method {
+	case "GET":
+		// render the template
+		context.Log.Println("Rendering the template for upload")
+		t, err := template.ParseGlob("templates/upload.html")
+		if err != nil {
+			context.Log.Println("Unable to parse the Upload template. Error is: ", err)
+			return http.StatusInternalServerError, err
+		}
+		w.Header().Set("Content-Type", "text/html")
+		t.Execute(w, nil)
+		revVal = http.StatusFound
+		err = nil
+		return revVal, err
+	case "POST":
+		if authToken == nil {
+			context.Log.Println("Session token is not found the request.")
+			revVal = http.StatusUnauthorized
+			err = errors.New("You are not allowed to make the request.")
+			return
+		}
+		context.Log.Println("Trying to upload the file now.")
+
+		file, header, err := r.FormFile("file")
+
+		if err != nil {
+			fmt.Fprintln(w, err)
+			return http.StatusInternalServerError, err
+		}
+
+		defer file.Close()
+
+		out, err := os.Create("/tmp/uploadedfile")
+		if err != nil {
+			fmt.Fprintf(w, "Unable to create the file for writing. Check your write access privilege")
+			return http.StatusInternalServerError, err
+		}
+		defer out.Close()
+		_, err = io.Copy(out, file)
+		if err != nil {
+			fmt.Fprintln(w, err)
+		}
+
+		fmt.Fprintf(w, "File uploaded successfully : ")
+		fmt.Fprintf(w, header.Filename)
+		revVal = http.StatusOK
+		err = nil
+		return revVal, err
+	default:
+		return http.StatusMethodNotAllowed, errors.New("This method is not allowed on this resource.")
+	}
+}
+
 func AuthroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
 	session := context.SessionStore.SessionStart(w, r)
 	authToken := session.Get("access_token")
 	if authToken == nil {
 		context.Log.Println("Inside the authorization handler.")
 		return AuthenticateUser(context, w, r)
-	} else {
-		context.Log.Println("Already authenticated, and therefore returning from here.")
-		return http.StatusSeeOther, nil
 	}
+	context.Log.Println("Already authenticated, and therefore fetching the image from instagram now.")
+	formData := r.FormValue("searchTerm")
+	tokenString, ok := authToken.(string)
+	if !ok {
+		context.Log.Println("Token cannot be cast to string. ERROR.")
+		return http.StatusInternalServerError, errors.New("Token cannot be cast to string")
+	}
+	images, err := LoadImages(context, formData, tokenString)
+	if err != nil {
+		context.Log.Println("Error fetching from instagram.")
+		return http.StatusInternalServerError, err
+	}
+	context.Log.Println("List of Images we got are:", images)
+	// downloadPath, err := DownloadImages(images)
+	// if err != nil {
+	// 	context.Log.Println("Unable to download images to the path")
+	// 	return http.StatusInternalServerError, err
+	// }
+	//imageIndex := buildImageIndex(downloadPath) //traverse this os path and build an index type of index is yet to be decided, but will be most likely db backed.
+	//TODO: change the original workflow to allow image upload.
+	//FLow -> Welcome guest, sign in to get started
+	// Post sign in -> Upload Image (Step 1)
+	// Redirect to step 2 -> Search for item
+	// Now proceed.
+	// Divide the actual image in a grid.
+	// Fetch the image which is closest to the average color of the grid.
+
+	return http.StatusSeeOther, nil
+
 }
