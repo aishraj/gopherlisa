@@ -185,11 +185,12 @@ func AuthroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Reques
 		return http.StatusInternalServerError, err
 	}
 	context.Log.Println("List of Images we got are:", images)
-	downloadPath, ok := DownloadImages(images)
+	downloadCount, ok := DownloadImages(images)
 	if !ok {
 		context.Log.Println("Unable to download images to the path")
 		return http.StatusInternalServerError, errors.New("Download failed")
 	}
+	context.Log.Println("Download count was: ", downloadCount)
 	//imageIndex := buildImageIndex(downloadPath) //traverse this os path and build an index type of index is yet to be decided, but will be most likely db backed.
 	//TODO: change the original workflow to allow image upload.
 	//FLow -> Welcome guest, sign in to get started
