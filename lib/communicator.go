@@ -9,6 +9,8 @@ import (
 	"net/url"
 )
 
+//TODO: This could be made concurrent.
+
 func LoadImages(context *AppContext, searchTerm, authToken string) ([]string, error) {
 	context.Log.Println("Trying to load images from instagram now.")
 	serverURI := "https://api.instagram.com/v1/tags/" + searchTerm + "/media/recent/"
