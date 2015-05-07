@@ -16,3 +16,16 @@ Wokflow:
 -> Catalogue (compute and index images)
 -> Use the algo
 -> Show it to the user.
+
+Landing page -> / --> Check cookie based on it render a different template (templates => 1. login 2. upload )
+Login action POST /login
+Search POST /search --- > Returns a 401 if not authorized
+Logout POST /logout (TBD)
+
+----
+Upload Image /upload (POST)
+If done redirect to /search (GET) -- > Render our 3rd template (serarch box)
+
+---
+Return cases:
+- unAuthorized, error (if the user disallowes the app)

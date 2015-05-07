@@ -42,14 +42,15 @@ func AuthenticateUser(context *AppContext, w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func PerformPostReqeust(applicationContext *AppContext, w http.ResponseWriter, req *http.Request, code string) (status int, err error) {
+//TODO: this need not be floowing the new handler pattern, and can simply return the code.
+func GetAuthToken(applicationContext *AppContext, w http.ResponseWriter, req *http.Request, code string) (token AuthenticationResponse, err error) {
 
 	applicationContext.Log.Printf("Performing Post trigggered with the code value %v \n", code)
 
 	uri, err := url.ParseRequestURI(constants.OauthBaseURI)
 
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return token, err
 	}
 
 	uri.Path = "/oauth/access_token/"
@@ -73,7 +74,7 @@ func PerformPostReqeust(applicationContext *AppContext, w http.ResponseWriter, r
 
 	if err != nil {
 		applicationContext.Log.Println("Unable to send the post request with the code")
-		return http.StatusInternalServerError, err
+		return token, err
 
 	}
 
@@ -81,13 +82,13 @@ func PerformPostReqeust(applicationContext *AppContext, w http.ResponseWriter, r
 
 	if resp.StatusCode != 200 {
 		applicationContext.Log.Println("Did not get 200 for the post authn request.")
-		return resp.StatusCode, errors.New("Did not get a success while posting on instagram")
+		return token, errors.New("Did not get a success while posting on instagram")
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		applicationContext.Log.Println("Unable to parse HTTP response to body")
-		return http.StatusInternalServerError, errors.New("Did not get a success while posting on instagram")
+		return token, errors.New("Did not get a success while posting on instagram")
 	}
 
 	var authToken AuthenticationResponse
@@ -100,26 +101,10 @@ func PerformPostReqeust(applicationContext *AppContext, w http.ResponseWriter, r
 			applicationContext.Log.Println(string(body[v.Offset-40 : v.Offset]))
 		}
 		applicationContext.Log.Println("Eror while unmarshalling data.")
-		return http.StatusInternalServerError, errors.New("Error unmarshalling data")
+		return token, errors.New("Error unmarshalling data")
 	}
 
 	applicationContext.Log.Printf("Yippie!! your authentication token is %v \n", authToken.AccessToken)
 	applicationContext.Log.Println("Got the data: ", authToken)
-
-	session := applicationContext.SessionStore.SessionStart(w, r)
-	session.Set("user", authToken.User.FullName)
-	session.Set("access_token", authToken.AccessToken)
-	// TODO: set data in sesison storeage.
-	//key, err := datastore.Put(context, datastore.NewIncompleteKey(context, "authToken", nil), &authToken)
-	// applicationContext.log.Printf("Key is %v \n", key)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	return http.StatusSeeOther, nil //TODO should work. lets see what happens
-
-	//TODO save this data along with the user info info db. Override the token if user is already present.
-
-	//Now redirect to homepage (where we again check the token and this time it will be around)
+	return authToken, nil
 }
