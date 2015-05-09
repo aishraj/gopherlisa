@@ -1,0 +1,59 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+APIResponse	lib/insta.go	/^type APIResponse struct {$/;"	t
+AppContext	lib/handlers.go	/^type AppContext struct {$/;"	t
+AuthenticateUser	lib/authenticator.go	/^func AuthenticateUser(context *AppContext, w http.ResponseWriter, r *http.Request) (status int, err error) {$/;"	f
+AuthenticationResponse	lib/insta.go	/^type AuthenticationResponse struct {$/;"	t
+AuthenticationUser	lib/insta.go	/^type AuthenticationUser struct {$/;"	t
+Delete	lib/session_manager.go	/^func (st *Session) Delete(key interface{}) error {$/;"	f
+DigitialMediaInfo	lib/insta.go	/^type DigitialMediaInfo struct {$/;"	t
+DownloadImages	lib/downloader.go	/^func DownloadImages(images []string) (int, bool) {$/;"	f
+Get	lib/session_manager.go	/^func (st *Session) Get(key interface{}) interface{} {$/;"	f
+GetAuthToken	lib/authenticator.go	/^func GetAuthToken(applicationContext *AppContext, w http.ResponseWriter, req *http.Request, code string) (token AuthenticationResponse, err error) {$/;"	f
+Handler	lib/handlers.go	/^type Handler struct {$/;"	t
+ImageDetails	lib/insta.go	/^type ImageDetails struct {$/;"	t
+ImageMetaData	lib/insta.go	/^type ImageMetaData struct {$/;"	t
+LoadImages	lib/communicator.go	/^func LoadImages(context *AppContext, searchTerm, authToken string) ([]string, error) {$/;"	f
+MetaData	lib/insta.go	/^type MetaData struct {$/;"	t
+NewSessionManager	lib/session_manager.go	/^func NewSessionManager(cookieName string, maxlifetime int64) (*SessionManager, error) {$/;"	f
+PaginationObject	lib/insta.go	/^type PaginationObject struct {$/;"	t
+ServeHTTP	lib/handlers.go	/^func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {$/;"	f
+Session	lib/session_manager.go	/^type Session struct {$/;"	t
+SessionDestroy	lib/session_manager.go	/^func (manager *SessionManager) SessionDestroy(sessionID string) error {$/;"	f
+SessionID	lib/session_manager.go	/^func (st *Session) SessionID() string {$/;"	f
+SessionManager	lib/session_manager.go	/^type SessionManager struct {$/;"	t
+SessionRead	lib/session_manager.go	/^func (manager *SessionManager) SessionRead(sid string) (Session, error) {$/;"	f
+SessionStart	lib/session_manager.go	/^func (manager *SessionManager) SessionStart(w http.ResponseWriter, r *http.Request) (session Session) {$/;"	f
+Set	lib/session_manager.go	/^func (st *Session) Set(key, value interface{}) error {$/;"	f
+TagResponse	lib/insta.go	/^type TagResponse struct {$/;"	t
+TestCommunicator	lib/communicator_test.go	/^func TestCommunicator(t *testing.T) {$/;"	f
+authToken	lib/authenticator.go	/^	var authToken AuthenticationResponse$/;"	v
+authroizeHandler	lib/handlers.go	/^func authroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {$/;"	f
+baseHandler	lib/handlers.go	/^func baseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {$/;"	f
+downloadResult	lib/downloader.go	/^	var downloadResult []string$/;"	v
+downloader	lib/downloader.go	/^func downloader(links <-chan string, results chan<- string) {$/;"	f
+executeTemplate	lib/templates.go	/^func executeTemplate(name string, vars map[string]interface{}) []byte {$/;"	f
+fetchImages	lib/communicator.go	/^func fetchImages(context *AppContext, serverURI, authToken string) ([]string, error) {$/;"	f
+fetchServerResponse	lib/communicator.go	/^func fetchServerResponse(context *AppContext, serverURI string) (APIResponse, error) {$/;"	f
+getSessionID	lib/session_manager.go	/^func (manager *SessionManager) getSessionID() string {$/;"	f
+init	lib/templates.go	/^func init() {$/;"	f
+init	main.go	/^func init() {$/;"	f
+loadTemplate	lib/templates.go	/^func loadTemplate(name string, path string) {$/;"	f
+main	main.go	/^func main() {$/;"	f
+maxGoRoutines	lib/downloader.go	/^	var maxGoRoutines int$/;"	v
+of	lib/handlers.go	/^	\/\/imageIndex := buildImageIndex(downloadPath) \/\/traverse this os path and build an index type of index is yet to be decided, but will be most likely db backed.$/;"	t
+oldBaseHandler	lib/handlers.go	/^func oldBaseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {$/;"	f
+renderIndex	lib/template_helper.go	/^func renderIndex(displayUser interface{}) ([]byte,error) {$/;"	f
+responseMap	lib/communicator.go	/^	var responseMap APIResponse$/;"	v
+searchHandler	lib/search.go	/^func searchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {$/;"	f
+sessionInit	lib/session_manager.go	/^func (manager *SessionManager) sessionInit(sessionID string) (Session, error) {$/;"	f
+tinyUser	lib/handlers.go	/^type tinyUser struct {$/;"	t
+uploadHandler	lib/handlers.go	/^func uploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {$/;"	f
+validateAndStartSession	lib/handlers.go	/^func validateAndStartSession(context *AppContext, w http.ResponseWriter, r *http.Request) Session {$/;"	f
+views	lib/templates.go	/^var views = make(map[string]*template.Template)$/;"	v
+was	lib/handlers.go	/^		context.Log.Println("Seems the user didn't do a get request. Request type was: ", r.Method)$/;"	t
+we	lib/communicator.go	/^			context.Log.Println("The mediatype we got is: ", mediaType)$/;"	t

@@ -2,6 +2,7 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -75,16 +76,23 @@ func baseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (r
 			if er != nil {
 				context.Log.Println("Unable to get the token. Error was: ", er)
 				return http.StatusInternalServerError, errors.New(er.Error())
-			} else {
-				session := context.SessionStore.SessionStart(w, r)
-				session.Set("user", authToken.User.FullName)
-				session.Set("access_token", authToken.AccessToken)
 			}
+			session := context.SessionStore.SessionStart(w, r)
+			session.Set("user", authToken.User.FullName)
+			session.Set("access_token", authToken.AccessToken)
 			//Now redirect the user to the upload page. (ie redirect to the hoemage again, but display the upload template instead)
 			return http.StatusSeeOther, nil
 		}
 		//now that everything's done, we try to render the right template
 		// ie upload template if the session has the user token, else the login template
+		//lets read the session token
+		displayUser := session.Get("user")
+
+		markup := renderIndex(displayUser)
+		fmt.Fprint(w, string(markup))
+		return http.StatusOK, nil
+	default:
+		return http.StatusUnauthorized, nil
 	}
 }
 
