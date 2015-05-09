@@ -31,11 +31,11 @@ func LoadImages(context *AppContext, searchTerm, authToken string) ([]string, er
 
 func fetchImages(context *AppContext, serverURI, authToken string) ([]string, error) {
 	items := make([]string, 0, 1000)
-	urlQueue := make([]string, 10, 500)
+	urlQueue := make([]string, 10, 100)
 	firstURL := serverURI
 	urlQueue = append(urlQueue, firstURL)
 
-	for len(urlQueue) > 0 && len(items) <= 500 {
+	for len(urlQueue) > 0 && len(items) <= 100 {
 		fetchURL, urlQueue := urlQueue[len(urlQueue)-1], urlQueue[0:len(urlQueue)-1]
 		context.Log.Println("Tyring to fetch from the URL: ", fetchURL)
 		responseMap, err := fetchServerResponse(context, fetchURL)

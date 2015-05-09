@@ -22,10 +22,10 @@ func main() {
 	Info := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Info.Println("Starting out the go program")
 	context := &lib.AppContext{Info, sessionStore}
-	authHandler := lib.Handler{context, lib.authroizeHandler}
-	rootHandler := lib.Handler{context, lib.baseHandler}
-	uploadHandler := lib.Handler{context, lib.uploadHandler}
-	searchHandler := lib.Handler{context, lib.searchHandler}
+	authHandler := lib.Handler{context, lib.AuthroizeHandler}
+	rootHandler := lib.Handler{context, lib.BaseHandler}
+	uploadHandler := lib.Handler{context, lib.UploadHandler}
+	searchHandler := lib.Handler{context, lib.SearchHandler}
 	http.Handle("/login/", authHandler)
 	http.Handle("/search", searchHandler)
 	http.Handle("/upload/", uploadHandler)

@@ -15,31 +15,22 @@ import (
 	"github.com/aishraj/gopherlisa/lib/constants"
 )
 
-func AuthenticateUser(context *AppContext, w http.ResponseWriter, r *http.Request) (status int, err error) {
-	method := r.Method
-
-	switch method {
-
-	case "POST":
-		u, err := url.Parse(constants.OauthBaseURI)
-		u.Path = "/oauth/authorize/"
-		if err != nil {
-			context.Log.Println("Unable to parse the URI. Error is: ", err)
-			return http.StatusBadRequest, err
-		}
-		query := u.Query()
-		query.Set("client_id", constants.InstagramClientID)
-		query.Set("redirect_uri", constants.RedirectURI)
-		query.Set("response_type", "code")
-
-		u.RawQuery = query.Encode()
-		context.Log.Println("Query is: ", u)
-		http.Redirect(w, r, fmt.Sprintf("%v", u), http.StatusSeeOther) //TODO change this so that redirect happens in the calling method.
-		return http.StatusOK, nil                                      //TODO change this
-	default:
-		context.Log.Print("This method is not allowed")
-		return http.StatusMethodNotAllowed, errors.New("Not allowed.")
+func AuthroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
+	u, err := url.Parse(constants.OauthBaseURI)
+	u.Path = "/oauth/authorize/"
+	if err != nil {
+		context.Log.Println("Unable to parse the URI. Error is: ", err)
+		return http.StatusBadRequest, err
 	}
+	query := u.Query()
+	query.Set("client_id", constants.InstagramClientID)
+	query.Set("redirect_uri", constants.RedirectURI)
+	query.Set("response_type", "code")
+
+	u.RawQuery = query.Encode()
+	context.Log.Println("Query is: ", u)
+	http.Redirect(w, r, fmt.Sprintf("%v", u), http.StatusSeeOther) //TODO change this so that redirect happens in the calling method.
+	return http.StatusOK, nil                                      //TODO change this
 }
 
 //TODO: this need not be floowing the new handler pattern, and can simply return the code.

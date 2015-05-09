@@ -44,7 +44,7 @@ func NewSessionManager(cookieName string, maxlifetime int64) (*SessionManager, e
 }
 
 func (manager *SessionManager) SessionStart(w http.ResponseWriter, r *http.Request) (session Session) {
-	log.Println("Locking now.")
+	log.Println("Locking Session store now.")
 	manager.lock.Lock()
 	defer manager.lock.Unlock()
 	cookie, err := r.Cookie(manager.cookieName)

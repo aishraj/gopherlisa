@@ -58,7 +58,8 @@ func validateAndStartSession(context *AppContext, w http.ResponseWriter, r *http
 	}
 	return session
 }
-func baseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {
+
+func BaseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {
 	session := validateAndStartSession(context, w, r)
 	switch r.Method {
 	case "GET":
@@ -88,87 +89,20 @@ func baseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (r
 		//lets read the session token
 		displayUser := session.Get("user")
 
-		markup := renderIndex(displayUser)
+		markup := renderIndex(context, displayUser)
+		if markup == nil {
+			context.Log.Println("Unable to render the templates.")
+			return http.StatusInternalServerError, nil
+		}
 		fmt.Fprint(w, string(markup))
+		context.Log.Println("Done generating markup.")
 		return http.StatusOK, nil
 	default:
 		return http.StatusUnauthorized, nil
 	}
 }
 
-func oldBaseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {
-	context.Log.Println("Inside the base handler.")
-	session := context.SessionStore.SessionStart(w, r)
-	context.Log.Println("Got session object inside the base handler.")
-	createtime := session.Get("createtime")
-	context.Log.Println("The create time of the session is: ", createtime)
-
-	if createtime == nil {
-		session.Set("createtime", time.Now().Unix())
-	} else if (createtime.(int64) + 360) < (time.Now().Unix()) {
-		context.Log.Println("Session has expired, starting new session.")
-		context.SessionStore.SessionDestroy(session.SessionID())
-		session = context.SessionStore.SessionStart(w, r)
-	}
-
-	context.Log.Println("Now checking the method.")
-	switch r.Method {
-	case "GET":
-		context.Log.Println("It is a GET method.")
-		code := r.URL.Query().Get("code")
-
-		if instaError := r.URL.Query().Get("error"); len(code) != 0 {
-			context.Log.Println("Send a post request to Instgaram now")
-			//return GetAuthToken(context, w, r, code) //performs a post request to instagram to get the auth token. Should redirect upon completion.
-			//TODO: This method need not be the return value and can be a generic method.
-		} else if instaError == "access_denied" && r.URL.Query().Get("error_reason") == "user_denied" {
-			context.Log.Println("User denied permission for access.")
-			retVal = http.StatusUnauthorized
-			err = errors.New("Seems you didn't allow that to happen")
-		} else {
-			//This is where we start.
-			context.Log.Println("Looks like a new user!. Trying to get the value of the user name from the session")
-			displayUser := session.Get("user")
-			if displayUser == nil {
-				context.Log.Println("The user's name was not set. Setting it to guest now")
-				session.Set("user", "Guest")
-				//				renderLoginIndex
-				//Show template login
-			} else {
-				context.Log.Println("The user's name was set, displaying it now.")
-				session.Set("user", displayUser)
-				//Show template search
-			}
-			context.Log.Println("Now trying to render the template.")
-			t, err := template.ParseGlob("templates/login.html")
-			if err != nil {
-				context.Log.Println("Unable to parse the template. Error is: ", err)
-				return http.StatusInternalServerError, err
-			}
-			w.Header().Set("Content-Type", "text/html")
-
-			context.Log.Println("Display user is: ", session.Get("user"))
-			if str, ok := session.Get("user").(string); ok {
-				userInfo := tinyUser{str}
-				t.Execute(w, userInfo)
-				retVal = http.StatusFound
-				err = nil
-			} else {
-				context.Log.Printf("Could not cast the user display name to string")
-				retVal = http.StatusInternalServerError
-				err = errors.New("Unable to set username in template")
-			}
-		}
-	default:
-		context.Log.Println("Seems the user didn't do a get request. Request type was: ", r.Method)
-		retVal = http.StatusMethodNotAllowed
-		err = errors.New("Method not supported.")
-	}
-	context.Log.Printf("Returning with values Status  %v and error %v ", retVal, err)
-	return
-}
-
-func uploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
+func UploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
 	session := context.SessionStore.SessionStart(w, r)
 	authToken := session.Get("access_token")
 	switch r.Method {
@@ -224,41 +158,22 @@ func uploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func authroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
-	session := context.SessionStore.SessionStart(w, r)
-	authToken := session.Get("access_token")
-	if authToken == nil {
-		context.Log.Println("Inside the authorization handler.")
-		return AuthenticateUser(context, w, r)
+func renderIndex(context *AppContext, userWrapper interface{}) []byte {
+	// Generate the markup for the index template.
+	if userWrapper == nil {
+		context.Log.Print("Attempting to render the login template")
+		markup := executeTemplate(context, "login", nil)
+		if markup == nil {
+			return nil
+		}
+		params := map[string]interface{}{"LayoutContent": template.HTML(string(markup))}
+		return executeTemplate(context, "head", params)
 	}
-	context.Log.Println("Already authenticated, and therefore fetching the image from instagram now.")
-	formData := r.FormValue("searchTerm")
-	tokenString, ok := authToken.(string)
-	if !ok {
-		context.Log.Println("Token cannot be cast to string. ERROR.")
-		return http.StatusInternalServerError, errors.New("Token cannot be cast to string")
+	context.Log.Print("Attempting to render the search template")
+	markup := executeTemplate(context, "search", nil)
+	if markup == nil {
+		return nil
 	}
-	images, err := LoadImages(context, formData, tokenString)
-	if err != nil {
-		context.Log.Println("Error fetching from instagram.")
-		return http.StatusInternalServerError, err
-	}
-	context.Log.Println("List of Images we got are:", images)
-	downloadCount, ok := DownloadImages(images)
-	if !ok {
-		context.Log.Println("Unable to download images to the path")
-		return http.StatusInternalServerError, errors.New("Download failed")
-	}
-	context.Log.Println("Download count was: ", downloadCount)
-	//imageIndex := buildImageIndex(downloadPath) //traverse this os path and build an index type of index is yet to be decided, but will be most likely db backed.
-	//TODO: change the original workflow to allow image upload.
-	//FLow -> Welcome guest, sign in to get started
-	// Post sign in -> Upload Image (Step 1)
-	// Redirect to step 2 -> Search for item
-	// Now proceed.
-	// Divide the actual image in a grid.
-	// Fetch the image which is closest to the average color of the grid.
-
-	return http.StatusSeeOther, nil
-
+	params := map[string]interface{}{"LayoutContent": template.HTML(string(markup))}
+	return executeTemplate(context, "head", params)
 }
