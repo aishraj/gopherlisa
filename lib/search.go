@@ -21,7 +21,7 @@ func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 		return http.StatusInternalServerError, err
 	}
 	context.Log.Println("List of Images we got are:", images)
-	downloadCount, ok := DownloadImages(images)
+	downloadCount, ok := DownloadImages(context, images, formData)
 	if !ok {
 		context.Log.Println("Unable to download images to the path")
 		return http.StatusInternalServerError, errors.New("Download failed")
