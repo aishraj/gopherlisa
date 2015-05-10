@@ -51,7 +51,9 @@ func downloader(links <-chan string, results chan<- int64, downloadDir string) {
 		lastIndex := strings.LastIndex(link, "/")
 		name := link[lastIndex+1:]
 		log.Println("Processing filename", name)
-		output, err := os.Create(basePath + name)
+		filePath := basePath + name
+		log.Println("****** creating file at *****", filePath)
+		output, err := os.Create(filePath)
 		defer output.Close()
 		response, err := http.Get(link)
 		if err != nil {

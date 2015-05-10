@@ -81,6 +81,7 @@ func BaseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (r
 			session := context.SessionStore.SessionStart(w, r)
 			session.Set("user", authToken.User.FullName)
 			session.Set("access_token", authToken.AccessToken)
+			session.Set("userId", authToken.User.ID)
 			//Now redirect the user to the upload page. (ie redirect to the hoemage again, but display the upload template instead)
 			return http.StatusSeeOther, nil
 		}
@@ -105,57 +106,60 @@ func BaseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (r
 func UploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
 	session := context.SessionStore.SessionStart(w, r)
 	authToken := session.Get("access_token")
+	if authToken == nil {
+		return http.StatusUnauthorized, errors.New("Cannot authorize")
+	}
+	userId := session.Get("userId")
+	if userId == nil {
+		return http.StatusInternalServerError, errors.New("UserId not there in sesion. ERROR")
+	}
+	fileId, ok := userId.(string)
+	if !ok {
+		context.Log.Println("Unable to cast the userid from session storage.")
+		return http.StatusInternalServerError, errors.New("Cannot cast the user id from session storage.")
+	}
 	switch r.Method {
 	case "GET":
-		// render the template
-		context.Log.Println("Rendering the template for upload")
-		t, err := template.ParseGlob("templates/upload.html")
-		if err != nil {
-			context.Log.Println("Unable to parse the Upload template. Error is: ", err)
-			return http.StatusInternalServerError, err
+		context.Log.Print("Method is get - attempting to render the upload template")
+		markup := executeTemplate(context, "upload", nil)
+		if markup == nil {
+			context.Log.Println("Unable to render the upload template")
+			return http.StatusInternalServerError, errors.New("Unable to render the upload template")
 		}
-		w.Header().Set("Content-Type", "text/html")
-		t.Execute(w, nil)
-		revVal = http.StatusFound
-		err = nil
-		return revVal, err
+		params := map[string]interface{}{"LayoutContent": template.HTML(string(markup))}
+		pageMarkup := executeTemplate(context, "head", params)
+		fmt.Fprint(w, string(pageMarkup))
+		return http.StatusOK, nil
 	case "POST":
-		if authToken == nil {
-			context.Log.Println("Session token is not found the request.")
-			revVal = http.StatusUnauthorized
-			err = errors.New("You are not allowed to make the request.")
-			return
-		}
-		context.Log.Println("Trying to upload the file now.")
-
+		context.Log.Println("The method is post, now trying to get the input file.")
 		file, header, err := r.FormFile("file")
 
 		if err != nil {
-			context.Log.Println(err)
+			context.Log.Println("Could not upload the file ******", err)
 			return http.StatusInternalServerError, err
 		}
 
 		defer file.Close()
-
-		out, err := os.Create("/tmp/uploadedfile")
+		context.Log.Println("Creting the file in local file system")
+		out, err := os.Create("/tmp/uploadedfile" + fileId + ".jpg")
 		if err != nil {
 			context.Log.Println("Unable to create the file for writing. Check your write access privilege")
 			return http.StatusInternalServerError, err
 		}
 		defer out.Close()
+		context.Log.Println("Populating local file data")
 		_, err = io.Copy(out, file)
 		if err != nil {
 			context.Log.Println(w, err)
 		}
 
-		context.Log.Println("File uploaded successfully : ")
-		context.Log.Println(header.Filename)
+		context.Log.Println("File uploaded successfully : ", header.Filename)
 		revVal = http.StatusOK
 		err = nil
 		return revVal, err
-	default:
-		return http.StatusMethodNotAllowed, errors.New("This method is not allowed on this resource.")
 	}
+	return http.StatusMethodNotAllowed, errors.New("This method is not allowed on this resource.")
+
 }
 
 func renderIndex(context *AppContext, userWrapper interface{}) []byte {
