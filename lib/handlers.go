@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"html/template"
@@ -14,6 +15,7 @@ import (
 type AppContext struct {
 	Log          *log.Logger
 	SessionStore *SessionManager
+	Db           *sql.DB
 }
 
 type tinyUser struct {
