@@ -41,18 +41,19 @@ func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 		}
 		context.Log.Println("Download count was: ", downloadCount)
 		//next is to resizeImages
-		n, ok := ResizeImages(context, formData)
-		if !ok {
-			context.Log.Println("Unable to resize images")
-			return http.StatusInternalServerError, errors.New("Resizing images failed")
-		}
-		context.Log.Println("Number of images resized was ", n)
+		// n, ok := ResizeImages(context, formData)
+		// if !ok {
+		// 	context.Log.Println("Unable to resize images")
+		// 	return http.StatusInternalServerError, errors.New("Resizing images failed")
+		// }
+		// context.Log.Println("Number of images resized was ", n)
 
-		n, err = AddImagesToIndex(context, formData)
+		n, err := AddImagesToIndex(context, formData)
 		if err != nil {
 			context.Log.Println("Unable to add images to index", err)
 			return http.StatusInternalServerError, err
 		}
+		context.Log.Println("Number of images indexed was", n)
 	}
 
 	//now that our images are in the index, display the image upload page
