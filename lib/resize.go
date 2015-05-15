@@ -13,8 +13,6 @@ func init() {
 	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
 }
 
-//TODO: a single resize routine is also required so that we can call it on a single image as well.
-
 func ResizeImages(context *AppContext, directoryName string) (int, bool) {
 	dirDescriptor, err := os.Open("../downloads/" + directoryName)
 	context.Log.Println("The directory name is :", directoryName)
@@ -116,7 +114,7 @@ func toNRGBA(img image.Image) *image.NRGBA {
 			return src0
 		}
 	}
-	return Clone(img)
+	return cloneImage(img)
 }
 
 func resize(src *image.NRGBA, width, height int) *image.NRGBA {
@@ -153,7 +151,7 @@ func resize(src *image.NRGBA, width, height int) *image.NRGBA {
 	return dst
 }
 
-func Clone(img image.Image) *image.NRGBA {
+func cloneImage(img image.Image) *image.NRGBA {
 	srcBounds := img.Bounds()
 	srcMinX := srcBounds.Min.X
 	srcMinY := srcBounds.Min.Y
