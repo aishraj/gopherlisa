@@ -56,6 +56,8 @@ func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 		context.Log.Println("Number of images indexed was", n)
 	}
 
+	//image TODO get resize working first
+
 	//now that our images are in the index, display the image upload page
 	context.Log.Println("Now redirecting to the upload handler")
 	http.Redirect(w, r, "/upload", http.StatusSeeOther)

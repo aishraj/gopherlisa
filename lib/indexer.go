@@ -43,18 +43,20 @@ func AddImagesToIndex(context *AppContext, directoryName string) (inexedCount in
 		go extractAndCalculate(context, fileNames, results, errorsChannel, directoryName)
 	}
 
+	count := 0
 	for _, fileObj := range files {
 		if fileObj.Mode().IsRegular() {
 			select {
 			case result := <-results:
 				context.Log.Printf("The result for file: %v processing was %v \n", fileObj.Name(), result)
+				count++
 			case errMsg := <-errorsChannel:
 				context.Log.Fatal("Sadly, something went wrong. Here's the error : ", errMsg)
 			}
 		}
 	}
 
-	return 0, nil
+	return count, nil
 }
 
 func extractAndCalculate(context *AppContext, fileNames <-chan string, results chan<- string, errChan chan<- error, directoryName string) {

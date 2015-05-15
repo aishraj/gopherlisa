@@ -28,7 +28,7 @@ func main() {
 	}
 
 	defer db.Close()
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Images ( id int(5) NOT NULL AUTO_INCREMENT, img varchar(256), red int(16), green int(16), blue int(16), PRIMARY KEY(id) )")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Images ( id int(5) NOT NULL AUTO_INCREMENT, img varchar(255) UNIQUE, red int(16), green int(16), blue int(16), PRIMARY KEY(id) )")
 	if err != nil {
 		log.Fatal("Unable to create table in db.")
 	}

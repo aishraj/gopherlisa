@@ -9,6 +9,7 @@ import (
 )
 
 func TestIndex(t *testing.T) {
+	t.Skip("skipping test mode.")
 	sessionStore, err := NewSessionManager("gopherId", 3600)
 	if err != nil {
 		log.Fatal("Unable to start the session store manager.", err)
