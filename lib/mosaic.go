@@ -17,7 +17,7 @@ func CreateMosaic(context *AppContext, srcName, destDirName string) image.Image 
 		return nil
 	}
 	sourceImage := ToNRGBA(srcImg)
-	outputImageWidth := 1200
+	outputImageWidth := 3600
 	outputImageHeight := calcRelativeImageHeight(sourceImage.Bounds().Max.X, sourceImage.Bounds().Max.Y, outputImageWidth)
 
 	resizedImage := Resize(sourceImage, outputImageWidth, outputImageHeight)
