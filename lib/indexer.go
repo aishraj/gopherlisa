@@ -79,7 +79,7 @@ func extractAndCalculate(context *AppContext, fileNames <-chan string, results c
 			errChan <- err
 		}
 		context.Log.Println("Finding prominent color for image", fileName)
-		prominentColor := findProminentColour(img)
+		prominentColor := FindProminentColour(img)
 		_, err = statement.Exec(fileName, prominentColor.R, prominentColor.G, prominentColor.B)
 		if err != nil {
 			context.Log.Println("Unable to insert into db. Error is", err)
@@ -89,7 +89,7 @@ func extractAndCalculate(context *AppContext, fileNames <-chan string, results c
 	}
 }
 
-func findProminentColour(myImage image.Image) color.RGBA {
+func FindProminentColour(myImage image.Image) color.RGBA {
 
 	var totalRed uint64
 	var totalGreen uint64
@@ -121,4 +121,11 @@ func findProminentColour(myImage image.Image) color.RGBA {
 	averageColour := color.RGBA{R: uint8(averageRed), G: uint8(averageGreen), B: uint8(averageBlue), A: 255}
 
 	return averageColour
+}
+
+func Crop(img image.Image, rect image.Rectangle) *image.NRGBA {
+	src := ToNRGBA(img)
+	srcRect := rect.Sub(img.Bounds().Min)
+	sub := src.SubImage(srcRect)
+	return CloneImage(sub) // New image Bounds().Min point will be (0, 0)
 }

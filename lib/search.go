@@ -40,15 +40,14 @@ func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 			return http.StatusInternalServerError, errors.New("Download failed")
 		}
 		context.Log.Println("Download count was: ", downloadCount)
-		//next is to resizeImages
-		// n, ok := ResizeImages(context, formData)
-		// if !ok {
-		// 	context.Log.Println("Unable to resize images")
-		// 	return http.StatusInternalServerError, errors.New("Resizing images failed")
-		// }
-		// context.Log.Println("Number of images resized was ", n)
+		n, ok := ResizeImages(context, formData)
+		if !ok {
+			context.Log.Println("Unable to resize images")
+			return http.StatusInternalServerError, errors.New("Resizing images failed")
+		}
+		context.Log.Println("Number of images resized was ", n)
 
-		n, err := AddImagesToIndex(context, formData)
+		n, err = AddImagesToIndex(context, formData)
 		if err != nil {
 			context.Log.Println("Unable to add images to index", err)
 			return http.StatusInternalServerError, err
@@ -56,6 +55,17 @@ func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 		context.Log.Println("Number of images indexed was", n)
 	}
 
+	userId := session.Get("userId")
+	if userId == nil {
+		return http.StatusInternalServerError, errors.New("UserId not there in sesion. ERROR")
+	}
+	fileId, ok := userId.(string)
+	if !ok {
+		context.Log.Println("Unable to cast the userid from session storage.")
+		return http.StatusInternalServerError, errors.New("Cannot cast the user id from session storage.")
+	}
+
+	CreateMosaic(context, fileId, formData)
 	//image TODO get resize working first
 
 	//now that our images are in the index, display the image upload page

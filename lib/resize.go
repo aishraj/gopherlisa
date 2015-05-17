@@ -76,12 +76,12 @@ func extractAndProcess(context *AppContext, fileNames <-chan string, results cha
 			errChan <- err
 		}
 
-		nrgbaImage := toNRGBA(img)
+		nrgbaImage := ToNRGBA(img)
 		bounds := nrgbaImage.Bounds()
 		boundsString := fmt.Sprintln(bounds)
 		context.Log.Println("The bounds BEFORE the resize are: ", boundsString)
 
-		nrgbaImage = resize(nrgbaImage, 64, 64)
+		nrgbaImage = Resize(nrgbaImage, 64, 64)
 
 		bounds = nrgbaImage.Bounds()
 		boundsString = fmt.Sprintln(bounds)
@@ -107,17 +107,17 @@ func extractAndProcess(context *AppContext, fileNames <-chan string, results cha
 	}
 }
 
-func toNRGBA(img image.Image) *image.NRGBA {
+func ToNRGBA(img image.Image) *image.NRGBA {
 	srcBounds := img.Bounds()
 	if srcBounds.Min.X == 0 && srcBounds.Min.Y == 0 {
 		if src0, ok := img.(*image.NRGBA); ok {
 			return src0
 		}
 	}
-	return cloneImage(img)
+	return CloneImage(img)
 }
 
-func resize(src *image.NRGBA, width, height int) *image.NRGBA {
+func Resize(src *image.NRGBA, width, height int) *image.NRGBA {
 	dstW, dstH := width, height
 
 	srcBounds := src.Bounds()
@@ -151,7 +151,7 @@ func resize(src *image.NRGBA, width, height int) *image.NRGBA {
 	return dst
 }
 
-func cloneImage(img image.Image) *image.NRGBA {
+func CloneImage(img image.Image) *image.NRGBA {
 	srcBounds := img.Bounds()
 	srcMinX := srcBounds.Min.X
 	srcMinY := srcBounds.Min.Y
