@@ -13,11 +13,11 @@ import (
 func CreateMosaic(context *AppContext, srcName, destDirName string) image.Image {
 	srcImg, err := LoadImage("/tmp/" + srcName + ".jpg")
 	if err != nil {
-		context.Log.Println("Unable to open the input file. Error is", err)
+		context.Log.Fatal("Unable to open the input file. Error is", err)
 		return nil
 	}
 	sourceImage := ToNRGBA(srcImg)
-	outputImageWidth := 600
+	outputImageWidth := 1200
 	outputImageHeight := calcRelativeImageHeight(sourceImage.Bounds().Max.X, sourceImage.Bounds().Max.Y, outputImageWidth)
 
 	resizedImage := Resize(sourceImage, outputImageWidth, outputImageHeight)
@@ -27,12 +27,13 @@ func CreateMosaic(context *AppContext, srcName, destDirName string) image.Image 
 	analysedTiles := analyseImageTileColours(resizedImage, imageTiles)
 
 	// update tiles with details of similar images
-	preparedTiles := updateSimilarColourImages(context, analysedTiles, srcName)
+	preparedTiles := updateSimilarColourImages(context, analysedTiles, destDirName)
 
 	// draw photo tiles
-	photoImage := drawPhotoTiles(resizedImage, &preparedTiles, 64)
+	photoImage := drawPhotoTiles(resizedImage, &preparedTiles, 64, destDirName)
 
 	outputImagePath := "/tmp/output.jpeg"
+	context.Log.Println("Generating output file now.......")
 	// save image created
 	err = SaveImage(outputImagePath, &photoImage)
 	return nil
@@ -60,7 +61,7 @@ func SaveImage(imagePath string, imageToSave *image.Image) error {
 func LoadImage(imagePath string) (image.Image, error) {
 	file, err := os.Open(imagePath)
 	if err != nil {
-		log.Printf("Error during LoadImage: %s", err)
+		log.Printf("Cannot Load Image %s", err)
 		return nil, err
 	}
 	defer file.Close()
@@ -161,7 +162,7 @@ func updateSimilarColourImages(context *AppContext, imageTiles [][]Tile, indexNa
 	return imageTiles
 }
 
-func drawPhotoTiles(sourceImage image.Image, imageTiles *[][]Tile, tileWidth int) image.Image {
+func drawPhotoTiles(sourceImage image.Image, imageTiles *[][]Tile, tileWidth int, indexName string) image.Image {
 
 	// convert sourceImage to RGBA image
 	bounds := sourceImage.Bounds()
@@ -175,7 +176,7 @@ func drawPhotoTiles(sourceImage image.Image, imageTiles *[][]Tile, tileWidth int
 			if tile.MatchedImage != "" {
 				//
 
-				tileImage, err := LoadImage(tile.MatchedImage)
+				tileImage, err := LoadImage("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + indexName + "/" + tile.MatchedImage)
 				if err != nil {
 					panic("Error loading image")
 				}

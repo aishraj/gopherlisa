@@ -14,7 +14,7 @@ func init() {
 }
 
 func ResizeImages(context *AppContext, directoryName string) (int, bool) {
-	dirDescriptor, err := os.Open("../downloads/" + directoryName)
+	dirDescriptor, err := os.Open("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + directoryName) //TODO change this
 	context.Log.Println("The directory name is :", directoryName)
 	if err != nil {
 		context.Log.Fatal("Unable to read directory.", err)
@@ -64,7 +64,7 @@ func ResizeImages(context *AppContext, directoryName string) (int, bool) {
 
 func extractAndProcess(context *AppContext, fileNames <-chan string, results chan<- string, errChan chan<- error, directoryName string) {
 	for fileName := range fileNames {
-		filePath := "../downloads/" + directoryName + "/" + fileName
+		filePath := "/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + directoryName + "/" + fileName
 		imageFile, err := os.Open(filePath)
 		if err != nil {
 			context.Log.Printf("Unable to open the image file %v Error is %v \n", fileName, err)

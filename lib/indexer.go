@@ -12,7 +12,7 @@ func init() {
 }
 
 func AddImagesToIndex(context *AppContext, directoryName string) (inexedCount int, err error) {
-	dirDescriptor, err := os.Open("../downloads/" + directoryName)
+	dirDescriptor, err := os.Open("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + directoryName)
 	context.Log.Println("The directory name is :", directoryName)
 	if err != nil {
 		context.Log.Fatal("Unable to read directory.", err)
@@ -61,14 +61,14 @@ func AddImagesToIndex(context *AppContext, directoryName string) (inexedCount in
 
 func extractAndCalculate(context *AppContext, fileNames <-chan string, results chan<- string, errChan chan<- error, directoryName string) {
 	db := context.Db
-	statement, err := db.Prepare("INSERT Images SET img=?,red=?,green=?,blue=?")
+	statement, err := db.Prepare("INSERT Images SET imgtype = ?, img=?,red=?,green=?,blue=?")
 	if err != nil {
 		context.Log.Println("Error in inserting to db", err)
 		errChan <- err
 	}
 	defer statement.Close()
 	for fileName := range fileNames {
-		imageFile, err := os.Open("../downloads/" + directoryName + "/" + fileName)
+		imageFile, err := os.Open("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + directoryName + "/" + fileName)
 		if err != nil {
 			context.Log.Printf("Unable to open the image file %v Error is %v \n", fileName, err)
 			errChan <- err
@@ -80,7 +80,7 @@ func extractAndCalculate(context *AppContext, fileNames <-chan string, results c
 		}
 		context.Log.Println("Finding prominent color for image", fileName)
 		prominentColor := FindProminentColour(img)
-		_, err = statement.Exec(fileName, prominentColor.R, prominentColor.G, prominentColor.B)
+		_, err = statement.Exec(directoryName, fileName, prominentColor.R, prominentColor.G, prominentColor.B)
 		if err != nil {
 			context.Log.Println("Unable to insert into db. Error is", err)
 			errChan <- err

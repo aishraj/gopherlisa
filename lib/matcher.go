@@ -6,9 +6,9 @@ import (
 )
 
 func findClosestMatch(context *AppContext, inpVal color.RGBA, group string) string {
-	context.Log.Println("Starting to find closest match")
+	context.Log.Println("Starting to find closest match. Params are :", inpVal, group)
 	db := context.Db
-	stmt, err := db.Prepare("SELECT img,red,green,blue FROM Images LIMIT 10")
+	stmt, err := db.Prepare("SELECT img,red,green,blue FROM Images WHERE imgtype = ? LIMIT 10")
 	if err != nil {
 		context.Log.Fatal("ERROR: Cannot get images from db. ", err)
 		return ""
@@ -16,7 +16,7 @@ func findClosestMatch(context *AppContext, inpVal color.RGBA, group string) stri
 	defer stmt.Close()
 	minDistance := math.MaxFloat64
 	minFileName := ""
-	results, err := stmt.Query()
+	results, err := stmt.Query(group)
 	if err != nil {
 		context.Log.Fatal("Could not execute statment on db")
 		return ""
@@ -50,5 +50,6 @@ func findClosestMatch(context *AppContext, inpVal color.RGBA, group string) stri
 			context.Log.Println("Min is now", minDistance)
 		}
 	}
+	context.Log.Println("The closest fileName is: ", minFileName)
 	return minFileName
 }

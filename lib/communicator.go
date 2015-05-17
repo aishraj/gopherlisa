@@ -31,7 +31,7 @@ func LoadImages(context *AppContext, searchTerm, authToken string) ([]string, er
 
 func fetchImages(context *AppContext, serverURI, authToken string) ([]string, error) {
 	items := make([]string, 0, 500)
-	urlQueue := make([]string, 300, 500)
+	urlQueue := make([]string, 500, 500)
 	firstURL := serverURI
 	urlQueue = append(urlQueue, firstURL)
 

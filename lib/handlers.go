@@ -88,11 +88,12 @@ func BaseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (r
 			return http.StatusSeeOther, nil
 		}
 		//now that everything's done, we try to render the right template
-		// ie upload template if the session has the user token, else the login template
+		// ie upload template if the session has the user token but not the uploaded flag, search if both the user token and uploaded flag, else the root
 		//lets read the session token
 		displayUser := session.Get("user")
+		uploadedFlag := session.Get("uploaded")
 
-		markup := renderIndex(context, displayUser)
+		markup := renderIndex(context, displayUser, uploadedFlag)
 		if markup == nil {
 			context.Log.Println("Unable to render the templates.")
 			return http.StatusInternalServerError, nil
@@ -143,7 +144,7 @@ func UploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 
 		defer file.Close()
 		context.Log.Println("Creting the file in local file system")
-		out, err := os.Create("/tmp/uploadedfile" + fileId + ".jpg")
+		out, err := os.Create("/tmp/" + fileId + ".jpg")
 		if err != nil {
 			context.Log.Println("Unable to create the file for writing. Check your write access privilege")
 			return http.StatusInternalServerError, err
@@ -156,6 +157,16 @@ func UploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 		}
 
 		context.Log.Println("File uploaded successfully : ", header.Filename)
+
+		err = session.Set("uploaded", true)
+		if err != nil {
+			context.Log.Fatal("Unable to set the value in the session. Error is:", err)
+		}
+
+		//now that our images are in the index, display the image upload page
+		context.Log.Println("Now redirecting to the index handler")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+
 		revVal = http.StatusOK
 		err = nil
 		return revVal, err
@@ -164,11 +175,19 @@ func UploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 
 }
 
-func renderIndex(context *AppContext, userWrapper interface{}) []byte {
+func renderIndex(context *AppContext, userWrapper, uploadedFlag interface{}) []byte {
 	// Generate the markup for the index template.
 	if userWrapper == nil {
 		context.Log.Print("Attempting to render the login template")
 		markup := executeTemplate(context, "login", nil)
+		if markup == nil {
+			return nil
+		}
+		params := map[string]interface{}{"LayoutContent": template.HTML(string(markup))}
+		return executeTemplate(context, "head", params)
+	} else if uploadedFlag == nil {
+		context.Log.Print("Attempting to render the upload template")
+		markup := executeTemplate(context, "upload", nil)
 		if markup == nil {
 			return nil
 		}
