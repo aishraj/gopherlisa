@@ -23,7 +23,7 @@ func main() {
 
 	Info := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Info.Println("Starting out the go program")
-	db, err := sql.Open("mysql", "root:mysql@/gopherlisa")
+	db, err := sql.Open("mysql", "root:mysql@/gopherlisa") //TODO Read this from environment or config
 	if err != nil {
 		log.Fatal("Unable to get a connection to MySQL. Error is: ", err)
 	}
@@ -33,11 +33,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Unable to create table in db. Aborting now. Error is :", err)
 	}
-	context := &common.AppContext{Info, sessionStore, db}
-	authHandler := app.Handler{context, app.AuthroizeHandler}
-	rootHandler := app.Handler{context, app.BaseHandler}
-	uploadHandler := app.Handler{context, app.UploadHandler}
-	searchHandler := app.Handler{context, app.SearchHandler}
+	context := &common.AppContext{Log: Info, SessionStore: sessionStore, Db: db}
+	authHandler := app.Handler{AppContext: context, HandlerFunc: app.AuthroizeHandler}
+	rootHandler := app.Handler{AppContext: context, HandlerFunc: app.BaseHandler}
+	uploadHandler := app.Handler{AppContext: context, HandlerFunc: app.UploadHandler}
+	searchHandler := app.Handler{AppContext: context, HandlerFunc: app.SearchHandler}
 	http.Handle("/login/", authHandler)
 	http.Handle("/search", searchHandler)
 	http.Handle("/upload/", uploadHandler)
