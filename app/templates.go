@@ -1,14 +1,15 @@
-// Package lib : temnplates provides support for using HTML
+// Package app : temnplates provides support for using HTML
 // based templates for responses.
-package lib
+package app
 
 import (
 	"bytes"
+	"github.com/aishraj/gopherlisa/common"
 	"html/template"
 )
 
 // executeTemplate executes the specified template with the specified variables.
-func executeTemplate(context *AppContext, name string, params map[string]interface{}) []byte {
+func executeTemplate(context *common.AppContext, name string, params map[string]interface{}) []byte {
 	context.Log.Println("Executing template named", name)
 	t, err := template.ParseFiles("views/" + name + ".html")
 	if err != nil {

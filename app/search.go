@@ -1,13 +1,15 @@
-package lib
+package app
 
 import (
 	"errors"
+	"github.com/aishraj/gopherlisa/common"
+	"github.com/aishraj/gopherlisa/imgtools"
 	"io/ioutil"
 	"net/http"
 	"os"
 )
 
-func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
+func SearchHandler(context *common.AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
 	if r.Method == "POST" {
 		session := context.SessionStore.SessionStart(w, r)
 		authToken := session.Get("access_token")
@@ -45,14 +47,14 @@ func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 				return http.StatusInternalServerError, errors.New("Download failed")
 			}
 			context.Log.Println("Download count was: ", downloadCount)
-			n, ok := ResizeImages(context, formData)
+			n, ok := imgtools.ResizeImages(context, formData)
 			if !ok {
 				context.Log.Println("Unable to resize images")
 				return http.StatusInternalServerError, errors.New("Resizing images failed")
 			}
 			context.Log.Println("Number of images resized was ", n)
 
-			n, err = AddImagesToIndex(context, formData)
+			n, err = imgtools.AddImagesToIndex(context, formData)
 			if err != nil {
 				context.Log.Println("Unable to add images to index", err)
 				return http.StatusInternalServerError, err
@@ -70,7 +72,7 @@ func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 			return http.StatusInternalServerError, errors.New("Cannot cast the user id from session storage.")
 		}
 
-		CreateMosaic(context, fileId, formData)
+		imgtools.CreateMosaic(context, fileId, formData)
 		//image TODO get resize working first
 
 		//once resized images are there, lets index them.
@@ -80,7 +82,7 @@ func SearchHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 
 }
 
-func isDownloadRequired(context *AppContext, searchTerm string) bool {
+func isDownloadRequired(context *common.AppContext, searchTerm string) bool {
 	files, err := ioutil.ReadDir("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + searchTerm)
 	if err != nil {
 		context.Log.Println("ERROR: Unable to count the number of files")
@@ -94,7 +96,7 @@ func isDownloadRequired(context *AppContext, searchTerm string) bool {
 	return false
 }
 
-func directoryExists(context *AppContext, dirname string) bool {
+func directoryExists(context *common.AppContext, dirname string) bool {
 	src, err := os.Stat("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + dirname)
 	if err != nil {
 		context.Log.Println("Unable to verify OS stat.")

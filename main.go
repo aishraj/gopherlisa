@@ -2,7 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"github.com/aishraj/gopherlisa/lib"
+	"github.com/aishraj/gopherlisa/app"
+	"github.com/aishraj/gopherlisa/common"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
@@ -15,7 +16,7 @@ func init() {
 }
 
 func main() {
-	sessionStore, err := lib.NewSessionManager("gopherId", 3600)
+	sessionStore, err := common.NewSessionManager("gopherId", 3600)
 	if err != nil {
 		log.Fatal("Unable to start the session store manager.", err)
 	}
@@ -32,11 +33,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Unable to create table in db. Aborting now. Error is :", err)
 	}
-	context := &lib.AppContext{Info, sessionStore, db}
-	authHandler := lib.Handler{context, lib.AuthroizeHandler}
-	rootHandler := lib.Handler{context, lib.BaseHandler}
-	uploadHandler := lib.Handler{context, lib.UploadHandler}
-	searchHandler := lib.Handler{context, lib.SearchHandler}
+	context := &common.AppContext{Info, sessionStore, db}
+	authHandler := app.Handler{context, app.AuthroizeHandler}
+	rootHandler := app.Handler{context, app.BaseHandler}
+	uploadHandler := app.Handler{context, app.UploadHandler}
+	searchHandler := app.Handler{context, app.SearchHandler}
 	http.Handle("/login/", authHandler)
 	http.Handle("/search", searchHandler)
 	http.Handle("/upload/", uploadHandler)

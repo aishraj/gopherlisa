@@ -1,4 +1,4 @@
-package constants
+package common
 
 //TODO: Make this config driven instead
 

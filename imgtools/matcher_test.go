@@ -1,7 +1,8 @@
-package lib
+package imgtools
 
 import (
 	"database/sql"
+	"github.com/aishraj/gopherlisa/common"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestMatcher(t *testing.T) {
-	sessionStore, err := NewSessionManager("gopherId", 3600)
+	sessionStore, err := common.NewSessionManager("gopherId", 3600)
 	if err != nil {
 		log.Fatal("Unable to start the session store manager.", err)
 	}
@@ -20,7 +21,7 @@ func TestMatcher(t *testing.T) {
 		log.Fatal("Unable to get a connection to MySQL. Error is: ", err)
 	}
 
-	context := &AppContext{Info, sessionStore, db} //TODO: add db connection
+	context := &common.AppContext{Info, sessionStore, db} //TODO: add db connection
 	loadedImage, err := LoadImage("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/kathmandu/10684246_1100050490011860_943310652_n.jpg")
 	if err != nil {
 		context.Log.Fatal("Cannot load image from disk.", err)

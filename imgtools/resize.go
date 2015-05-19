@@ -1,7 +1,8 @@
-package lib
+package imgtools
 
 import (
 	"fmt"
+	"github.com/aishraj/gopherlisa/common"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -13,7 +14,7 @@ func init() {
 	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
 }
 
-func ResizeImages(context *AppContext, directoryName string) (int, bool) {
+func ResizeImages(context *common.AppContext, directoryName string) (int, bool) {
 	dirDescriptor, err := os.Open("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + directoryName) //TODO change this
 	context.Log.Println("The directory name is :", directoryName)
 	if err != nil {
@@ -62,7 +63,7 @@ func ResizeImages(context *AppContext, directoryName string) (int, bool) {
 	return successCount, true
 }
 
-func extractAndProcess(context *AppContext, fileNames <-chan string, results chan<- string, errChan chan<- error, directoryName string) {
+func extractAndProcess(context *common.AppContext, fileNames <-chan string, results chan<- string, errChan chan<- error, directoryName string) {
 	for fileName := range fileNames {
 		filePath := "/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + directoryName + "/" + fileName
 		imageFile, err := os.Open(filePath)

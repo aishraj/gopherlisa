@@ -15,3 +15,8 @@
 -> Post login and display, the flow should work without server process restart.
 -> Figure out a good way to store the files (securely etc)
 -> Provide login and logout options.
+
+
+---------
+- A "library" that has all the "core stuff"
+- A Web app part with the MVC

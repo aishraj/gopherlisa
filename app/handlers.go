@@ -1,9 +1,9 @@
-package lib
+package app
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/aishraj/gopherlisa/common"
 	"html/template"
 	"io"
 	"log"
@@ -12,19 +12,9 @@ import (
 	"time"
 )
 
-type AppContext struct {
-	Log          *log.Logger
-	SessionStore *SessionManager
-	Db           *sql.DB
-}
-
-type tinyUser struct {
-	DisplayName string
-}
-
 type Handler struct {
-	*AppContext
-	HandlerFunc func(*AppContext, http.ResponseWriter, *http.Request) (int, error)
+	AppContext  *common.AppContext
+	HandlerFunc func(*common.AppContext, http.ResponseWriter, *http.Request) (int, error)
 }
 
 func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +38,7 @@ func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func validateAndStartSession(context *AppContext, w http.ResponseWriter, r *http.Request) Session {
+func validateAndStartSession(context *common.AppContext, w http.ResponseWriter, r *http.Request) common.Session {
 	session := context.SessionStore.SessionStart(w, r)
 	createtime := session.Get("createtime")
 	if createtime == nil {
@@ -61,7 +51,7 @@ func validateAndStartSession(context *AppContext, w http.ResponseWriter, r *http
 	return session
 }
 
-func BaseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {
+func BaseHandler(context *common.AppContext, w http.ResponseWriter, r *http.Request) (retVal int, err error) {
 	session := validateAndStartSession(context, w, r)
 	switch r.Method {
 	case "GET":
@@ -106,7 +96,7 @@ func BaseHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (r
 	}
 }
 
-func UploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
+func UploadHandler(context *common.AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
 	session := context.SessionStore.SessionStart(w, r)
 	authToken := session.Get("access_token")
 	if authToken == nil {
@@ -175,7 +165,7 @@ func UploadHandler(context *AppContext, w http.ResponseWriter, r *http.Request) 
 
 }
 
-func renderIndex(context *AppContext, userWrapper, uploadedFlag interface{}) []byte {
+func renderIndex(context *common.AppContext, userWrapper, uploadedFlag interface{}) []byte {
 	// Generate the markup for the index template.
 	if userWrapper == nil {
 		context.Log.Print("Attempting to render the login template")

@@ -1,6 +1,6 @@
 // +build !appengine
 
-package lib
+package app
 
 import (
 	"bytes"
@@ -12,19 +12,19 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/aishraj/gopherlisa/lib/constants"
+	"github.com/aishraj/gopherlisa/common"
 )
 
-func AuthroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
-	u, err := url.Parse(constants.OauthBaseURI)
+func AuthroizeHandler(context *common.AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
+	u, err := url.Parse(common.OauthBaseURI)
 	u.Path = "/oauth/authorize/"
 	if err != nil {
 		context.Log.Println("Unable to parse the URI. Error is: ", err)
 		return http.StatusBadRequest, err
 	}
 	query := u.Query()
-	query.Set("client_id", constants.InstagramClientID)
-	query.Set("redirect_uri", constants.RedirectURI)
+	query.Set("client_id", common.InstagramClientID)
+	query.Set("redirect_uri", common.RedirectURI)
 	query.Set("response_type", "code")
 
 	u.RawQuery = query.Encode()
@@ -34,11 +34,11 @@ func AuthroizeHandler(context *AppContext, w http.ResponseWriter, r *http.Reques
 }
 
 //TODO: this need not be floowing the new handler pattern, and can simply return the code.
-func GetAuthToken(applicationContext *AppContext, w http.ResponseWriter, req *http.Request, code string) (token AuthenticationResponse, err error) {
+func GetAuthToken(applicationContext *common.AppContext, w http.ResponseWriter, req *http.Request, code string) (token AuthenticationResponse, err error) {
 
 	applicationContext.Log.Printf("Performing Post trigggered with the code value %v \n", code)
 
-	uri, err := url.ParseRequestURI(constants.OauthBaseURI)
+	uri, err := url.ParseRequestURI(common.OauthBaseURI)
 
 	if err != nil {
 		return token, err
@@ -46,10 +46,10 @@ func GetAuthToken(applicationContext *AppContext, w http.ResponseWriter, req *ht
 
 	uri.Path = "/oauth/access_token/"
 	data := url.Values{}
-	data.Set("client_id", constants.InstagramClientID)
-	data.Add("client_secret", constants.InstagramSecret)
+	data.Set("client_id", common.InstagramClientID)
+	data.Add("client_secret", common.InstagramSecret)
 	data.Add("grant_type", "authorization_code")
-	data.Add("redirect_uri", constants.RedirectURI)
+	data.Add("redirect_uri", common.RedirectURI)
 	data.Add("code", code)
 
 	urlStr := fmt.Sprintf("%v", uri)

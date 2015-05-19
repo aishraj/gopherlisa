@@ -1,6 +1,7 @@
-package lib
+package app
 
 import (
+	"github.com/aishraj/gopherlisa/common"
 	"io"
 	"log"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 	"strings"
 )
 
-func DownloadImages(context *AppContext, images []string, searchTerm string) (int, bool) {
+func DownloadImages(context *common.AppContext, images []string, searchTerm string) (int, bool) {
 	//TODO: use a combination of generator pattern and select to create n go routines and synchronize them using select.
 	//The core download method would just take a string url, and download it to $baseDownloadpath/tag
 	//the advantage is that when index creation is done it can directly use the tag.

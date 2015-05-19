@@ -1,7 +1,8 @@
-package lib
+package imgtools
 
 import (
 	"database/sql"
+	"github.com/aishraj/gopherlisa/common"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
@@ -10,7 +11,7 @@ import (
 
 func TestIndex(t *testing.T) {
 	t.Skip("skipping test mode.")
-	sessionStore, err := NewSessionManager("gopherId", 3600)
+	sessionStore, err := common.NewSessionManager("gopherId", 3600)
 	if err != nil {
 		log.Fatal("Unable to start the session store manager.", err)
 	}
@@ -21,8 +22,8 @@ func TestIndex(t *testing.T) {
 		log.Fatal("Unable to get a connection to MySQL. Error is: ", err)
 	}
 
-	context := &AppContext{Info, sessionStore, db} //TODO: add db connection
-	directoryName := "kathmandu"                   //TODO: screw it  for now i'm going to remove this test and revoke access later
+	context := &common.AppContext{Info, sessionStore, db} //TODO: add db connection
+	directoryName := "kathmandu"                          //TODO: screw it  for now i'm going to remove this test and revoke access later
 	n, err := AddImagesToIndex(context, directoryName)
 	if err != nil {
 		log.Fatal("ERROR!!!!", err)

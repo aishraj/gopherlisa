@@ -1,9 +1,10 @@
-package lib
+package app
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aishraj/gopherlisa/common"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -11,7 +12,7 @@ import (
 
 //TODO: This could be made concurrent.
 
-func LoadImages(context *AppContext, searchTerm, authToken string) ([]string, error) {
+func LoadImages(context *common.AppContext, searchTerm, authToken string) ([]string, error) {
 	context.Log.Println("Trying to load images from instagram now.")
 	serverURI := "https://api.instagram.com/v1/tags/" + searchTerm + "/media/recent/"
 
@@ -29,7 +30,7 @@ func LoadImages(context *AppContext, searchTerm, authToken string) ([]string, er
 	return fetchImages(context, urlStr, authToken)
 }
 
-func fetchImages(context *AppContext, serverURI, authToken string) ([]string, error) {
+func fetchImages(context *common.AppContext, serverURI, authToken string) ([]string, error) {
 	items := make([]string, 0, 500)
 	urlQueue := make([]string, 500, 500)
 	firstURL := serverURI
@@ -63,7 +64,7 @@ func fetchImages(context *AppContext, serverURI, authToken string) ([]string, er
 	return items, nil
 }
 
-func fetchServerResponse(context *AppContext, serverURI string) (APIResponse, error) {
+func fetchServerResponse(context *common.AppContext, serverURI string) (APIResponse, error) {
 	//TODO: Add error handelling here.
 	var responseMap APIResponse
 	context.Log.Println("Trying to GET from the server on URI: ", serverURI)

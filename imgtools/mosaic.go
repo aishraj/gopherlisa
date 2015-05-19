@@ -1,7 +1,8 @@
-package lib
+package imgtools
 
 import (
 	"bufio"
+	"github.com/aishraj/gopherlisa/common"
 	"image"
 	"image/color"
 	"image/draw"
@@ -10,7 +11,7 @@ import (
 	"os"
 )
 
-func CreateMosaic(context *AppContext, srcName, destDirName string) image.Image {
+func CreateMosaic(context *common.AppContext, srcName, destDirName string) image.Image {
 	srcImg, err := LoadImage("/tmp/" + srcName + ".jpg")
 	if err != nil {
 		context.Log.Fatal("Unable to open the input file. Error is", err)
@@ -84,7 +85,7 @@ func calcRelativeImageHeight(originalWidth int, originalHeight int, targetWidth 
 	return targetHeight
 }
 
-func createTiles(targetWidth int, targetHeight int) [][]Tile {
+func createTiles(targetWidth int, targetHeight int) [][]common.Tile {
 
 	tileSize := 64
 
@@ -99,10 +100,10 @@ func createTiles(targetWidth int, targetHeight int) [][]Tile {
 
 	log.Printf("Tiles horizontal:%d vertical:%d", horzTiles, vertTiles)
 	// create a 2d array of imageTiles
-	imageTiles := make([][]Tile, horzTiles)
+	imageTiles := make([][]common.Tile, horzTiles)
 	// Loop over the rows, allocating the slice for each row.
 	for i := range imageTiles {
-		imageTiles[i] = make([]Tile, vertTiles)
+		imageTiles[i] = make([]common.Tile, vertTiles)
 	}
 
 	// populate tiles with correct co-ordinates
@@ -133,7 +134,7 @@ func createTiles(targetWidth int, targetHeight int) [][]Tile {
 	return imageTiles
 }
 
-func analyseImageTileColours(sourceImage image.Image, imageTiles [][]Tile) [][]Tile {
+func analyseImageTileColours(sourceImage image.Image, imageTiles [][]common.Tile) [][]common.Tile {
 	for _, tiles := range imageTiles {
 		for _, tile := range tiles {
 			tile.AverageColor = findAverageColor(sourceImage, tile.Rect)
@@ -149,7 +150,7 @@ func findAverageColor(sourceImage image.Image, targetRect image.Rectangle) color
 	return FindProminentColour(croppedImage)
 
 }
-func updateSimilarColourImages(context *AppContext, imageTiles [][]Tile, indexName string) [][]Tile {
+func updateSimilarColourImages(context *common.AppContext, imageTiles [][]common.Tile, indexName string) [][]common.Tile {
 
 	for _, tiles := range imageTiles {
 		for _, tile := range tiles {
@@ -162,7 +163,7 @@ func updateSimilarColourImages(context *AppContext, imageTiles [][]Tile, indexNa
 	return imageTiles
 }
 
-func drawPhotoTiles(sourceImage image.Image, imageTiles *[][]Tile, tileWidth int, indexName string) image.Image {
+func drawPhotoTiles(sourceImage image.Image, imageTiles *[][]common.Tile, tileWidth int, indexName string) image.Image {
 
 	// convert sourceImage to RGBA image
 	bounds := sourceImage.Bounds()

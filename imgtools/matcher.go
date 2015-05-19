@@ -1,11 +1,12 @@
-package lib
+package imgtools
 
 import (
+	"github.com/aishraj/gopherlisa/common"
 	"image/color"
 	"math"
 )
 
-func findClosestMatch(context *AppContext, inpVal color.RGBA, group string) string {
+func findClosestMatch(context *common.AppContext, inpVal color.RGBA, group string) string {
 	context.Log.Println("Starting to find closest match. Params are :", inpVal, group)
 	db := context.Db
 	stmt, err := db.Prepare("SELECT img,red,green,blue FROM Images WHERE imgtype = ? LIMIT 10")
