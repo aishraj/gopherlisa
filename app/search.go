@@ -32,7 +32,7 @@ func SearchHandler(context *common.AppContext, w http.ResponseWriter, r *http.Re
 			context.Log.Println("Download is required, downloading now")
 			//TODO: if the files are fewer than download and index. (nice to have)
 			if !directoryExists(context, formData) {
-				err := os.Mkdir("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/"+formData, 0777)
+				err := os.Mkdir(common.DownloadBasePath+formData, 0777)
 				if err != nil {
 					context.Log.Println("not able to create the directory ***************")
 				}
@@ -96,7 +96,7 @@ func SearchHandler(context *common.AppContext, w http.ResponseWriter, r *http.Re
 }
 
 func isDownloadRequired(context *common.AppContext, searchTerm string) bool {
-	files, err := ioutil.ReadDir("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + searchTerm)
+	files, err := ioutil.ReadDir(common.DownloadBasePath + searchTerm)
 	if err != nil {
 		context.Log.Println("ERROR: Unable to count the number of files")
 		return true //yes download
@@ -110,7 +110,7 @@ func isDownloadRequired(context *common.AppContext, searchTerm string) bool {
 }
 
 func directoryExists(context *common.AppContext, dirname string) bool {
-	src, err := os.Stat("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + dirname)
+	src, err := os.Stat(common.DownloadBasePath + dirname)
 	if err != nil {
 		context.Log.Println("Unable to verify OS stat.")
 		return false

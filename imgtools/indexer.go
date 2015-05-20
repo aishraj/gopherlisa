@@ -13,7 +13,7 @@ func init() {
 }
 
 func AddImagesToIndex(context *common.AppContext, directoryName string) (inexedCount int, err error) {
-	dirDescriptor, err := os.Open("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + directoryName)
+	dirDescriptor, err := os.Open(common.DownloadBasePath + directoryName)
 	context.Log.Println("The directory name is :", directoryName)
 	if err != nil {
 		context.Log.Fatal("Unable to read directory.", err)
@@ -69,7 +69,7 @@ func extractAndCalculate(context *common.AppContext, fileNames <-chan string, re
 	}
 	defer statement.Close()
 	for fileName := range fileNames {
-		imageFile, err := os.Open("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + directoryName + "/" + fileName)
+		imageFile, err := os.Open(common.DownloadBasePath + directoryName + "/" + fileName)
 		if err != nil {
 			context.Log.Printf("Unable to open the image file %v Error is %v \n", fileName, err)
 			errChan <- err

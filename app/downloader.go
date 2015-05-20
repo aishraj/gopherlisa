@@ -48,7 +48,7 @@ func downloader(links <-chan string, results chan<- int64, downloadDir string) {
 	for link := range links {
 		//process and put the result in results
 		//TODO: Send a get request and download the file. See what built in options go has for image downloading.
-		basePath := "/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + downloadDir + "/"
+		basePath := common.DownloadBasePath + downloadDir + "/"
 		lastIndex := strings.LastIndex(link, "/")
 		name := link[lastIndex+1:]
 		log.Println("Processing filename", name)

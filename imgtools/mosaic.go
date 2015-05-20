@@ -178,7 +178,7 @@ func drawPhotoTiles(sourceImage image.Image, imageTiles *[][]common.Tile, tileWi
 			if tile.MatchedImage != "" {
 				//
 
-				tileImage, err := LoadImage("/Users/ge3k/go/src/github.com/aishraj/gopherlisa/downloads/" + indexName + "/" + tile.MatchedImage)
+				tileImage, err := LoadImage(common.DownloadBasePath + indexName + "/" + tile.MatchedImage)
 				if err != nil {
 					panic("Error loading image")
 				}
