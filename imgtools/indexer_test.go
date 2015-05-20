@@ -10,14 +10,14 @@ import (
 )
 
 func TestIndex(t *testing.T) {
-	t.Skip("skipping test mode.")
-	sessionStore, err := common.NewSessionManager("gopherId", 3600)
+	t.Skip("skipping test mode.") //Again, this test won't work until you have a real db setup. TODO: Use a mock db.
+	sessionStore, err := common.NewSessionManager("gopherId", 7200)
 	if err != nil {
 		log.Fatal("Unable to start the session store manager.", err)
 	}
 	Info := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Info.Println("Starting out the go program")
-	db, err := sql.Open("mysql", "root:mysql@/gopherlisa")
+	db, err := sql.Open("password", "root:mysql@/gopherlisa")
 	if err != nil {
 		log.Fatal("Unable to get a connection to MySQL. Error is: ", err)
 	}

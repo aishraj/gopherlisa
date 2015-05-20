@@ -8,7 +8,7 @@ import (
 )
 
 func TestResize(t *testing.T) {
-	t.Skip("skipping test mode.")
+	t.Skip("skipping test mode.") //This test could work. But it would require some work around for the path.
 	sessionStore, err := common.NewSessionManager("gopherId", 3600)
 	if err != nil {
 		log.Fatal("Unable to start the session store manager.", err)
