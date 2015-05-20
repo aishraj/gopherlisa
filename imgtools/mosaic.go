@@ -37,8 +37,9 @@ func CreateMosaic(context *common.AppContext, srcName, destDirName string) image
 	context.Log.Println("Generating output file now.......")
 	// save image created
 	err = SaveImage(outputImagePath, &photoImage)
-	return nil
+	return photoImage
 }
+
 func SaveImage(imagePath string, imageToSave *image.Image) error {
 	if imgFilePng, err := os.Create(imagePath); err != nil {
 		log.Printf("Error saving PNG image: %s\n", err)

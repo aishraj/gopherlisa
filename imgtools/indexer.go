@@ -128,5 +128,5 @@ func Crop(img image.Image, rect image.Rectangle) *image.NRGBA {
 	src := ToNRGBA(img)
 	srcRect := rect.Sub(img.Bounds().Min)
 	sub := src.SubImage(srcRect)
-	return CloneImage(sub) // New image Bounds().Min point will be (0, 0)
+	return CloneImage(sub)
 }

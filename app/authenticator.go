@@ -72,7 +72,12 @@ func GetAuthToken(applicationContext *common.AppContext, w http.ResponseWriter, 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		applicationContext.Log.Println("Did not get 200 for the post authn request.")
+		contents, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			applicationContext.Log.Println("Could not parse the error resposne received from instagram.")
+			return token, errors.New("Did not get a success while posting on instagram and Could not parse the error resposne received from instagram.")
+		}
+		applicationContext.Log.Println("Did not get 200 for the post authn request. Response was: ", string(contents))
 		return token, errors.New("Did not get a success while posting on instagram")
 	}
 

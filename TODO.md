@@ -2,11 +2,10 @@
 
 
 ### Core issues
--> Re-order the modules. (image, commons, web)
--> Make mosaic into a library that can be used in the web app (ie webapp is now a different library)
 -> Remove dependency on the hard coded paths
 -> Refactor all the code surrounding the cruft
 -> Make the tests work better.
+-> Make mosaic into a library that can be used in the web app (ie webapp is now a different library)
 
 ### Webapp issues
 

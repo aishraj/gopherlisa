@@ -1,12 +1,15 @@
 package app
 
 import (
+	"bytes"
 	"errors"
 	"github.com/aishraj/gopherlisa/common"
 	"github.com/aishraj/gopherlisa/imgtools"
+	"image/jpeg"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 func SearchHandler(context *common.AppContext, w http.ResponseWriter, r *http.Request) (revVal int, err error) {
@@ -72,11 +75,21 @@ func SearchHandler(context *common.AppContext, w http.ResponseWriter, r *http.Re
 			return http.StatusInternalServerError, errors.New("Cannot cast the user id from session storage.")
 		}
 
-		imgtools.CreateMosaic(context, fileId, formData)
+		generatedImage := imgtools.CreateMosaic(context, fileId, formData)
 		//image TODO get resize working first
 
-		//once resized images are there, lets index them.
-		return http.StatusOK, nil //TODO: change this to redirect to the mosaic "creating" page (some loading bar or sth)
+		buffer := new(bytes.Buffer)
+		if err := jpeg.Encode(buffer, generatedImage, nil); err != nil {
+			context.Log.Println("unable to encode image.")
+		}
+
+		w.Header().Set("Content-Type", "image/jpeg")
+		w.Header().Set("Content-Length", strconv.Itoa(len(buffer.Bytes())))
+		if _, err := w.Write(buffer.Bytes()); err != nil {
+			context.Log.Println("unable to write image.")
+		}
+
+		return http.StatusOK, nil
 	}
 	return http.StatusMethodNotAllowed, errors.New("This method is not allowed here.")
 
