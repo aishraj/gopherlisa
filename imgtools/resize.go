@@ -109,76 +109,71 @@ func extractAndProcess(context *common.AppContext, fileNames <-chan string, resu
 }
 
 func ToNRGBA(img image.Image) *image.NRGBA {
-	srcBounds := img.Bounds()
-	if srcBounds.Min.X == 0 && srcBounds.Min.Y == 0 {
-		if src0, ok := img.(*image.NRGBA); ok {
-			return src0
+	sourceBounds := img.Bounds()
+	if sourceBounds.Min.X == 0 && sourceBounds.Min.Y == 0 {
+		if source0, ok := img.(*image.NRGBA); ok {
+			return source0
 		}
 	}
 	return CloneImage(img)
 }
 
-func Resize(src *image.NRGBA, width, height int) *image.NRGBA {
-	dstW, dstH := width, height
+func Resize(source *image.NRGBA, width, height int) *image.NRGBA {
+	//Naive nn resize.
+	destinationW, destinationH := width, height
 
-	srcBounds := src.Bounds()
-	srcW := srcBounds.Max.X
-	srcH := srcBounds.Max.Y
+	sourceBounds := source.Bounds()
+	sourceW := sourceBounds.Max.X
+	sourceH := sourceBounds.Max.Y
 
-	dst := image.NewNRGBA(image.Rect(0, 0, dstW, dstH))
+	destination := image.NewNRGBA(image.Rect(0, 0, destinationW, destinationH))
 
-	dx := float64(srcW) / float64(dstW)
-	dy := float64(srcH) / float64(dstH)
+	dx := float64(sourceW) / float64(destinationW)
+	dy := float64(sourceH) / float64(destinationH)
 
-	partStart := 0
-	partEnd := dstH
+	for destinationY := 0; destinationY < destinationH; destinationY++ {
+		fy := (float64(destinationY)+0.5)*dy - 0.5
 
-	for dstY := partStart; dstY < partEnd; dstY++ {
-		fy := (float64(dstY)+0.5)*dy - 0.5
+		for destinationX := 0; destinationX < destinationW; destinationX++ {
+			fx := (float64(destinationX)+0.5)*dx - 0.5
 
-		for dstX := 0; dstX < dstW; dstX++ {
-			fx := (float64(dstX)+0.5)*dx - 0.5
+			sourceX := int(math.Min(math.Max(math.Floor(fx+0.5), 0.0), float64(sourceW)))
+			sourceY := int(math.Min(math.Max(math.Floor(fy+0.5), 0.0), float64(sourceH)))
 
-			srcX := int(math.Min(math.Max(math.Floor(fx+0.5), 0.0), float64(srcW)))
-			srcY := int(math.Min(math.Max(math.Floor(fy+0.5), 0.0), float64(srcH)))
+			sourceOff := sourceY*source.Stride + sourceX*4
+			destinationOff := destinationY*destination.Stride + destinationX*4
 
-			srcOff := srcY*src.Stride + srcX*4
-			dstOff := dstY*dst.Stride + dstX*4
-
-			copy(dst.Pix[dstOff:dstOff+4], src.Pix[srcOff:srcOff+4])
+			copy(destination.Pix[destinationOff:destinationOff+4], source.Pix[sourceOff:sourceOff+4])
 		}
 	}
 
-	return dst
+	return destination
 }
 
 func CloneImage(img image.Image) *image.NRGBA {
-	srcBounds := img.Bounds()
-	srcMinX := srcBounds.Min.X
-	srcMinY := srcBounds.Min.Y
+	sourceBounds := img.Bounds()
+	sourceMinX := sourceBounds.Min.X
+	sourceMinY := sourceBounds.Min.Y
 
-	dstBounds := srcBounds.Sub(srcBounds.Min)
-	dstW := dstBounds.Dx()
-	dstH := dstBounds.Dy()
-	dst := image.NewNRGBA(dstBounds)
+	destinationBounds := sourceBounds.Sub(sourceBounds.Min)
+	destinationW := destinationBounds.Dx()
+	destinationH := destinationBounds.Dy()
+	destination := image.NewNRGBA(destinationBounds)
 
-	partStart := 0
-	partEnd := dstH
+	for destinationY := 0; destinationY < destinationH; destinationY++ {
+		index := destination.PixOffset(0, destinationY)
+		for destinationX := 0; destinationX < destinationW; destinationX++ {
 
-	for dstY := partStart; dstY < partEnd; dstY++ {
-		di := dst.PixOffset(0, dstY)
-		for dstX := 0; dstX < dstW; dstX++ {
+			c := color.NRGBAModel.Convert(img.At(sourceMinX+destinationX, sourceMinY+destinationY)).(color.NRGBA)
+			destination.Pix[index+0] = c.R
+			destination.Pix[index+1] = c.G
+			destination.Pix[index+2] = c.B
+			destination.Pix[index+3] = c.A
 
-			c := color.NRGBAModel.Convert(img.At(srcMinX+dstX, srcMinY+dstY)).(color.NRGBA)
-			dst.Pix[di+0] = c.R
-			dst.Pix[di+1] = c.G
-			dst.Pix[di+2] = c.B
-			dst.Pix[di+3] = c.A
-
-			di += 4
+			index += 4
 
 		}
 	}
 
-	return dst
+	return destination
 }

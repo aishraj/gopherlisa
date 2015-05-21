@@ -2,18 +2,15 @@
 
 
 ### Core issues
--> Make the tests work better.
--> Refactor all the code surrounding the cruft
--> Make mosaic into a library that can be used in the web app (ie webapp is now a different library)
+-> Refactor the mosaic.go file.
+-> Test out once the above is done.
+-> Create a new launcher (`main.go`) for the standalone app and separate out the web app launcher.
+-> Test again.
+-> Add README and all then submit.
 
-### Webapp issues
+### Nice to have stuff
 
 -> Have save to Twitter/Instagram/Dropbox (?) option.
 -> Post login and display, the flow should work without server process restart.
 -> Figure out a good way to store the files (securely etc)
 -> Provide login and logout options.
-
-
----------
-- A "library" that has all the "core stuff"
-- A Web app part with the MVC

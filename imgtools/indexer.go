@@ -26,7 +26,7 @@ func AddImagesToIndex(context *common.AppContext, directoryName string) (inexedC
 		return 0, err
 	}
 
-	maxGoRoutines := 8
+	maxGoRoutines := 8 //Did this based on the number of cores in my system. Also didn't want too many db connections.
 	fileNames := make(chan string, len(files))
 	results := make(chan string, len(files))
 	errorsChannel := make(chan error, 1)

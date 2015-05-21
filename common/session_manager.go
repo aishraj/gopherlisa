@@ -12,6 +12,7 @@ import (
 )
 
 // SessionManager, does lots of stuff ;-)
+//Based on http://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.3.html
 //TODO: Need to add a session expiry check that would invalidate older sessions.
 
 type SessionManager struct {

@@ -22,20 +22,18 @@ func CreateMosaic(context *common.AppContext, srcName, destDirName string) image
 	outputImageHeight := calcRelativeImageHeight(sourceImage.Bounds().Max.X, sourceImage.Bounds().Max.Y, outputImageWidth)
 
 	resizedImage := Resize(sourceImage, outputImageWidth, outputImageHeight)
-	// how many tiles?
+
 	imageTiles := createTiles(outputImageWidth, outputImageHeight)
-	// analyse input image colours
+
 	analysedTiles := analyseImageTileColours(resizedImage, imageTiles)
 
-	// update tiles with details of similar images
 	preparedTiles := updateSimilarColourImages(context, analysedTiles, destDirName)
 
-	// draw photo tiles
 	photoImage := drawPhotoTiles(resizedImage, &preparedTiles, 64, destDirName)
 
 	outputImagePath := "/tmp/output.jpeg"
 	context.Log.Println("Generating output file now.......")
-	// save image created
+
 	err = SaveImage(outputImagePath, &photoImage)
 	return photoImage
 }

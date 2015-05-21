@@ -34,6 +34,7 @@ func findClosestMatch(context *common.AppContext, inpVal color.RGBA, group strin
 			context.Log.Fatal("Unable to get the canend result into the table.", err)
 			return ""
 		}
+		//Values are based on a stackoverflow answer. They seem to work somehow.
 		rFactor := 0.30
 		gFactor := 0.59
 		bFactor := 0.11

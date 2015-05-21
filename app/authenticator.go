@@ -33,7 +33,6 @@ func AuthroizeHandler(context *common.AppContext, w http.ResponseWriter, r *http
 	return http.StatusOK, nil                                      //TODO change this
 }
 
-//TODO: this need not be floowing the new handler pattern, and can simply return the code.
 func GetAuthToken(applicationContext *common.AppContext, w http.ResponseWriter, req *http.Request, code string) (token AuthenticationResponse, err error) {
 
 	applicationContext.Log.Printf("Performing Post trigggered with the code value %v \n", code)
