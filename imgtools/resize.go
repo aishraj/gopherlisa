@@ -82,7 +82,7 @@ func extractAndProcess(context *common.AppContext, fileNames <-chan string, resu
 		boundsString := fmt.Sprintln(bounds)
 		context.Log.Println("The bounds BEFORE the resize are: ", boundsString)
 
-		nrgbaImage = Resize(nrgbaImage, 64, 64)
+		nrgbaImage = Resize(context, nrgbaImage, 64, 64)
 
 		bounds = nrgbaImage.Bounds()
 		boundsString = fmt.Sprintln(bounds)
@@ -118,7 +118,7 @@ func ToNRGBA(img image.Image) *image.NRGBA {
 	return CloneImage(img)
 }
 
-func Resize(source *image.NRGBA, width, height int) *image.NRGBA {
+func Resize(context *common.AppContext, source *image.NRGBA, width, height int) *image.NRGBA {
 	//Naive nn resize.
 	destinationW, destinationH := width, height
 
