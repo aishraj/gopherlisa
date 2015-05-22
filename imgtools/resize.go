@@ -82,7 +82,7 @@ func extractAndProcess(context *common.AppContext, fileNames <-chan string, resu
 		boundsString := fmt.Sprintln(bounds)
 		context.Log.Println("The bounds BEFORE the resize are: ", boundsString)
 
-		nrgbaImage = Resize(context, nrgbaImage, 64, 64)
+		nrgbaImage = Resize(context, nrgbaImage, tileSize, tileSize)
 
 		bounds = nrgbaImage.Bounds()
 		boundsString = fmt.Sprintln(bounds)

@@ -24,9 +24,6 @@ func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch status {
 		case http.StatusNotFound:
 			http.NotFound(w, r)
-			// And if we wanted a friendlier error page, we can
-			// now leverage our context instance - e.g.
-			// err := ah.renderTemplate(w, "http_404.tmpl", nil)
 		case http.StatusInternalServerError:
 			http.Error(w, http.StatusText(status), status)
 		default:

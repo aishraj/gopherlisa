@@ -35,6 +35,7 @@ func findClosestMatch(context *common.AppContext, inpVal color.RGBA, group strin
 			return ""
 		}
 		//Values are based on a stackoverflow answer. They seem to work somehow.
+		//Here http://j.mp/1IOpkRV
 		rFactor := 0.30
 		gFactor := 0.59
 		bFactor := 0.11

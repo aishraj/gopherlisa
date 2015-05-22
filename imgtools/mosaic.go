@@ -7,12 +7,13 @@ import (
 	"image/draw"
 )
 
-const outputWidth = 3600
+const outputWidth = 1024
+const tileSize = 8
 
 func CreateMosaic(context *common.AppContext, srcName, destDirName string) image.Image {
 	srcImg, err := LoadFromDisk(context, "/tmp/"+srcName+".jpg")
 	if err != nil {
-		context.Log.Fatal("Unable to open the input file. Error is", err)
+		context.Log.Fatal("Unable to open the input file. Error is ", err)
 		return nil
 	}
 	sourceImage := ToNRGBA(srcImg)
@@ -20,9 +21,9 @@ func CreateMosaic(context *common.AppContext, srcName, destDirName string) image
 	outputImageHeight := findImageHeight(sourceImage.Bounds().Max.X, sourceImage.Bounds().Max.Y, outputImageWidth)
 	resizedImage := Resize(context, sourceImage, outputImageWidth, outputImageHeight)
 	imageTiles := createTiles(context, outputImageWidth, outputImageHeight)
-	analysedTiles := analyseImageTileColours(context, resizedImage, imageTiles)
-	preparedTiles := updateSimilarColourImages(context, analysedTiles, destDirName)
-	photoImage := drawPhotoTiles(context, resizedImage, &preparedTiles, 64, destDirName)
+	processedTiles := processColors(context, resizedImage, imageTiles)
+	preparedTiles := updateSimilarColourImages(context, processedTiles, destDirName)
+	photoImage := drawPhotoTiles(context, resizedImage, &preparedTiles, 8, destDirName)
 	outputImagePath := "/tmp/output_" + srcName + ".jpeg"
 	context.Log.Println("Generating output file now.......")
 	err = SameToDisk(context, outputImagePath, &photoImage)
@@ -39,7 +40,6 @@ func findImageHeight(originalWidth int, originalHeight int, targetWidth int) int
 }
 
 func createTiles(context *common.AppContext, targetWidth int, targetHeight int) [][]common.Tile {
-	tileSize := 64
 	horzTiles := targetWidth / tileSize
 	if targetWidth%tileSize > 0 {
 		horzTiles++
@@ -76,7 +76,7 @@ func createTiles(context *common.AppContext, targetWidth int, targetHeight int) 
 	return imageTiles
 }
 
-func analyseImageTileColours(context *common.AppContext, sourceImage image.Image, imageTiles [][]common.Tile) [][]common.Tile {
+func processColors(context *common.AppContext, sourceImage image.Image, imageTiles [][]common.Tile) [][]common.Tile {
 	for _, tiles := range imageTiles {
 		for _, tile := range tiles {
 			tile.AverageColor = findAverageColor(context, sourceImage, tile.Rect)

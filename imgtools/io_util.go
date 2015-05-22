@@ -16,7 +16,7 @@ func SameToDisk(context *common.AppContext, imagePath string, imageToSave *image
 		defer imgFilePng.Close()
 		buffer := bufio.NewWriter(imgFilePng)
 		var opt jpeg.Options
-		opt.Quality = 80
+		opt.Quality = 95
 		err := jpeg.Encode(buffer, *imageToSave, &opt)
 		if err != nil {
 			context.Log.Printf("Error encoding image:%s", err)
